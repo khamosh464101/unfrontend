@@ -1,0 +1,20 @@
+@import "../public/assets/css/style.css";
+@import "suneditor/dist/css/suneditor.min.css"; //suneditor
+@import "filepond/dist/filepond.min.css"; //file pond css
+@import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css"; //dependencies plugin css for react file pond package
+@import "react-datepicker/dist/react-datepicker.css"; //(datepicker)
+
+@import "@simonwep/pickr/dist/themes/classic.min.css";
+@import "@simonwep/pickr/dist/themes/monolith.min.css";
+@import "@simonwep/pickr/dist/themes/nano.min.css";
+
+@import "simplebar-react/dist/simplebar.min.css";
+
+@media (max-width: 991.98px) {
+  [data-toggled="open"] {
+    #responsive-overlay {
+      @apply visible #{!important};
+      --tw-bg-opacity: 0.5;
+    }
+  }
+}

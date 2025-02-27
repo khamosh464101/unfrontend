@@ -1,0 +1,67 @@
+import { NextResponse } from "next/server";
+
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico, sitemap.xml, robots.txt (metadata files)
+     */
+    "/((?!api|public|assets|images|shared|signin|verify|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+  ],
+};
+
+export default async function middleware(req) {
+  const token = req.cookies.get("authToken")?.value; // Access the token from cookies
+  const verified = req.cookies.get("verified")?.value;
+
+  const path = req.nextUrl.pathname;
+  console.log("Token:", token ? "exists" : "does not exist");
+  console.log("Path:", path);
+
+  try {
+    // Use fetch instead of Axios
+    const response = await fetch("http://localhost:8000/api/user", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      throw {
+        status: response.status,
+        message: `HTTP error! Status: ${response.status}`,
+      };
+    }
+
+    const data = await response.json();
+    console.log("API Response:", data);
+
+    // If request succeeds and user is on signin/verify, redirect to home
+    if (path === "/" || path === "/authentication/verify/") {
+      return NextResponse.redirect(new URL("/dashboards/projects", req.url));
+    }
+  } catch (error) {
+    console.error("API Error:", error);
+
+    // If not authenticated and not on signin page, redirect to signin
+    if ((error.status === 401 || error.status === 410) && path !== "/") {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+
+    // If not verified and not on verify page, redirect to verify
+    if (error.status === 403 && path !== "/authentication/verify/") {
+      return NextResponse.redirect(new URL("/authentication/verify/", req.url));
+    }
+  }
+
+  // Continue to the requested route
+  return NextResponse.next();
+}
