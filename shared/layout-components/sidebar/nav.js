@@ -113,27 +113,27 @@ export const MenuItems = [
       },
 
       {
-        title: "Nested-2",
+        title: "Referential",
         type: "sub",
         active: false,
         selected: false,
         dirchange: false,
         children: [
           {
-            path: "",
-            type: "empty",
+            path: "/project-management/referential/program-status",
+            type: "link",
             active: false,
             selected: false,
             dirchange: false,
-            title: "Nested-2-1",
+            title: "Program Status",
           },
           {
-            path: "",
-            type: "empty",
+            path: "/project-management/referential/project-status",
+            type: "link",
             ctive: false,
             selected: false,
             dirchange: false,
-            title: "Nested-2-2",
+            title: "Project Status",
           },
           {
             path: "",
