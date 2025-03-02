@@ -165,7 +165,19 @@ function Single({ row, apiUrl }) {
           </p>
           <div className="font-semibold mb-1">
             Status :{" "}
-            <span className="badge bg-info/10 text-info">
+            <span
+              className="badge"
+              style={{
+                backgroundColor: `rgba(${parseInt(
+                  row.status.color.slice(1, 3),
+                  16
+                )}, ${parseInt(row.status.color.slice(3, 5), 16)}, ${parseInt(
+                  row.status.color.slice(5, 7),
+                  16
+                )}, 0.1)`,
+                color: row.status.color,
+              }}
+            >
               {row.status.title}
             </span>
           </div>

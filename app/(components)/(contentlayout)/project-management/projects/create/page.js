@@ -20,6 +20,20 @@ const Createproject = () => {
   const [programs, setPrograms] = useState([]);
   const [donors, setDonors] = useState([]);
   const [managers, setManagers] = useState([]);
+  const input = {
+    title: "",
+    start_date: new Date(),
+    end_date: new Date(),
+    code: "",
+    budget: 0.0,
+    logo: null,
+    project_status_id: "",
+    program_id: "",
+    donor_id: "",
+    manager_id: "",
+    kobo_project_id: "",
+  };
+  const [formData, setFormData] = useState(input);
   const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   useEffect(() => {
     if (session?.access_token) {
@@ -29,7 +43,7 @@ const Createproject = () => {
     }
   }, [session]);
   const getStatus = async () => {
-    const res = await fetch(`${apiUrl}/api/projects-status`, {
+    const res = await fetch(`${apiUrl}/api/projects-statuses/select2`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${session.access_token}`,
@@ -39,6 +53,9 @@ const Createproject = () => {
     const result = await res.json();
     if (result.length > 0) {
       let tmp = result.map((item) => {
+        if (item.is_default) {
+          setFormData({ ...formData, project_status_id: item.id });
+        }
         return { value: item.id, label: item.title };
       });
       setStatuses(tmp);
@@ -79,20 +96,6 @@ const Createproject = () => {
     }
     console.log(result);
   };
-  const input = {
-    title: "",
-    start_date: new Date(),
-    end_date: new Date(),
-    code: "",
-    budget: 0.0,
-    logo: null,
-    project_status_id: "",
-    program_id: "",
-    donor_id: "",
-    manager_id: "",
-    kobo_project_id: "",
-  };
-  const [formData, setFormData] = useState(input);
 
   // Handle change for text fields
   const handleChange = (name, value) => {

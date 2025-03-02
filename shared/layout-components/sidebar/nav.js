@@ -34,6 +34,10 @@ const MapsIcon = <i className="bx bx-map side-menu__icon"></i>;
 
 const Icons = <i className="bx bx-store-alt side-menu__icon"></i>;
 
+const Admin = <i className="bx bx-user side-menu__icon"></i>;
+
+const Referential = <i class="bx bx-library side-menu__icon"></i>;
+
 const badge = (
   <span className="badge !bg-warning/10 !text-warning !py-[0.25rem] !px-[0.45rem] !text-[0.75em] ms-1">
     1
@@ -82,7 +86,7 @@ export const MenuItems = [
   },
   {
     icon: NestedmenuIcon,
-    title: "Projects Management",
+    title: "Project Management",
     selected: false,
     active: false,
     type: "sub",
@@ -113,28 +117,12 @@ export const MenuItems = [
       },
 
       {
-        title: "Referential",
+        title: "Nested",
         type: "sub",
         active: false,
         selected: false,
         dirchange: false,
         children: [
-          {
-            path: "/project-management/referential/program-status",
-            type: "link",
-            active: false,
-            selected: false,
-            dirchange: false,
-            title: "Program Status",
-          },
-          {
-            path: "/project-management/referential/project-status",
-            type: "link",
-            ctive: false,
-            selected: false,
-            dirchange: false,
-            title: "Project Status",
-          },
           {
             path: "",
             type: "empty",
@@ -144,6 +132,56 @@ export const MenuItems = [
             title: "Nested-2-3",
           },
         ],
+      },
+    ],
+  },
+  {
+    icon: Referential,
+    title: "Referential",
+    type: "sub",
+    active: false,
+    selected: false,
+    children: [
+      {
+        path: "/referential/program-status",
+        type: "link",
+        active: false,
+        selected: false,
+        dirchange: false,
+        title: "Program Status",
+      },
+      {
+        path: "/referential/project-status",
+        type: "link",
+        ctive: false,
+        selected: false,
+        dirchange: false,
+        title: "Project Status",
+      },
+      {
+        path: "/referential/staff-status",
+        type: "link",
+        active: false,
+        selected: false,
+        dirchange: false,
+        title: "Staff Status",
+      },
+    ],
+  },
+  {
+    icon: Admin,
+    title: "Admin Panel",
+    selected: false,
+    active: false,
+    type: "sub",
+    children: [
+      {
+        path: "/project-management/programs",
+        title: "Programs",
+        type: "link",
+        active: false,
+        selected: false,
+        dirchange: false,
       },
     ],
   },

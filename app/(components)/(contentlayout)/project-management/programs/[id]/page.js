@@ -203,7 +203,22 @@ const Programoverview = ({ params }) => {
                     Status
                   </span>
                   <span className="block">
-                    <span className="badge bg-primary/10 text-primary">
+                    <span
+                      className="badge"
+                      style={{
+                        backgroundColor: `rgba(${parseInt(
+                          program?.status?.color.slice(1, 3),
+                          16
+                        )}, ${parseInt(
+                          program?.status?.color.slice(3, 5),
+                          16
+                        )}, ${parseInt(
+                          program?.status?.color.slice(5, 7),
+                          16
+                        )}, 0.1)`,
+                        color: program?.status?.color,
+                      }}
+                    >
                       {program?.status?.title}
                     </span>
                   </span>

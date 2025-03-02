@@ -14,13 +14,13 @@ import Swal from "sweetalert2";
 import { setDelete } from "@/shared/redux/features/deleteSlice";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
-const ProgramStatus = () => {
+const ProjectStatus = () => {
   const { data: session } = useSession();
   const dispatch = useDispatch();
   const deleteItem = useSelector((state) => state.delete.item);
   const [statuses, setStatuses] = useState({});
   const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const [url, setUrl] = useState(`${apiUrl}/api/programs-statuses`);
+  const [url, setUrl] = useState(`${apiUrl}/api/projects-statuses`);
   const [search, setSearch] = useState("");
   useEffect(() => {
     if (session?.access_token && !deleteItem) {
@@ -63,7 +63,7 @@ const ProgramStatus = () => {
   const deleteStatus = async (id) => {
     try {
       dispatch(setDelete());
-      const response = await fetch(`${apiUrl}/api/programs-status/${id}`, {
+      const response = await fetch(`${apiUrl}/api/projects-status/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -101,11 +101,11 @@ const ProgramStatus = () => {
   };
   return (
     <div>
-      <Seo title={"Program Statuses"} />
+      <Seo title={"Project Statuses"} />
       <Pageheader
-        currentpage="Program Statuses"
+        currentpage="Project Statuses"
         activepage="Tables"
-        mainpage="Program Statuses"
+        mainpage="Project Statuses"
       />
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12">
@@ -113,7 +113,7 @@ const ProgramStatus = () => {
             <div className="box-header">
               <div className="flex justify-between gap-4">
                 <Link
-                  href="/project-management/referential/program-status/create"
+                  href="/referential/project-status/create"
                   className="ti-btn ti-btn-primary-full me-2 !mb-0"
                 >
                   <i className="ri-add-line me-1 font-semibold align-middle"></i>
@@ -210,7 +210,7 @@ const ProgramStatus = () => {
                                 Delete
                               </button>
                               <Link
-                                href={`/project-management/referential/program-status/edit/${row.id}`}
+                                href={`/referential/project-status/edit/${row.id}`}
                                 className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-success-full btn-wave"
                               >
                                 <i className="ri-edit-2-line align-middle me-2 inline-block"></i>
@@ -252,4 +252,4 @@ const ProgramStatus = () => {
   );
 };
 
-export default ProgramStatus;
+export default ProjectStatus;

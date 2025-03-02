@@ -16,6 +16,12 @@ const Createprogram = () => {
   const { data: session, status, update } = useSession();
   const [loading, setLoading] = useState(false);
   const [statuses, setStatuses] = useState([]);
+  const input = {
+    title: "",
+    logo: null,
+    program_status_id: "",
+  };
+  const [formData, setFormData] = useState(input);
   const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   useEffect(() => {
     if (session?.access_token) {
@@ -23,7 +29,7 @@ const Createprogram = () => {
     }
   }, [session]);
   const getStatus = async () => {
-    const res = await fetch(`${apiUrl}/api/programs-status`, {
+    const res = await fetch(`${apiUrl}/api/programs-statuses/select2`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${session.access_token}`,
@@ -32,18 +38,15 @@ const Createprogram = () => {
     const result = await res.json();
     if (result.length > 0) {
       let tmp = result.map((item) => {
+        if (item.is_default) {
+          setFormData({ ...formData, program_status_id: item.id });
+        }
         return { value: item.id, label: item.title };
       });
       setStatuses(tmp);
     }
     console.log(result);
   };
-  const input = {
-    title: "",
-    logo: null,
-    program_status_id: "",
-  };
-  const [formData, setFormData] = useState(input);
 
   // Handle change for text fields
   const handleChange = (e) => {

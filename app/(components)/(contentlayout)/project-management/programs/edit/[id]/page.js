@@ -35,7 +35,7 @@ const Edit = ({ params }) => {
     }
   }, [session, id]);
   const getStatus = async () => {
-    const res = await fetch(`${apiUrl}/api/programs-status`, {
+    const res = await fetch(`${apiUrl}/api/programs-statuses/select2`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${session.access_token}`,

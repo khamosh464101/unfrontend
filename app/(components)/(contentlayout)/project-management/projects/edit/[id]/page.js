@@ -66,7 +66,7 @@ const Editproject = ({ params }) => {
     }
   };
   const getStatus = async () => {
-    const res = await fetch(`${apiUrl}/api/projects-status`, {
+    const res = await fetch(`${apiUrl}/api/projects-statuses/select2`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${session.access_token}`,
