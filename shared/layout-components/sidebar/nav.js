@@ -151,6 +151,39 @@ export const MenuItems = [
     selected: false,
     children: [
       {
+        title: "Locations",
+        type: "sub",
+        active: false,
+        selected: false,
+        dirchange: false,
+        children: [
+          {
+            path: "/referential/provinces",
+            type: "link",
+            active: false,
+            selected: false,
+            dirchange: false,
+            title: "Province",
+          },
+          {
+            path: "/referential/districts",
+            type: "link",
+            active: false,
+            selected: false,
+            dirchange: false,
+            title: "Districts",
+          },
+          {
+            path: "/referential/gozars",
+            type: "link",
+            active: false,
+            selected: false,
+            dirchange: false,
+            title: "Gozars/Villages",
+          },
+        ],
+      },
+      {
         path: "/referential/program-status",
         type: "link",
         active: false,
