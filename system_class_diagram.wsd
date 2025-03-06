@@ -1,0 +1,499 @@
+@startuml
+left to right direction
+package Guide <<Cloud>> {
+class ClassA  
+class ClassB 
+ClassA <|-- ClassB : < represent one-to-one
+ClassA *-- ClassB : < represent one-to-many
+ClassA o-- ClassB : < represent one-to-many optional
+note as N1
+The default color represents Module 1 Entities
+The Wheat Color represent Module 2 Entities
+The Blue Color represent Module 3 Entities
+end note
+}
+skinparam class {
+BackgroundColor<<Module 3>> AliceBlue 
+BorderColor<<Module 3>> Blue
+BackgroundColor<<Module 2>> Wheat
+BorderColor<<Module 2>> Tomato
+}
+
+class Province {
+    id:AUTO_INCREMENT,
+    name:string,
+}
+
+Province::id *-- District::province_id
+class District {
+    id:AUTO_INCREMENT,
+    name:string,
+    ..
+    province_id,
+}
+
+class Gozar {
+    id:AUTO_INCREMENT,
+    name:string,
+    ..
+    district_id,
+}
+
+
+class ProgramStatus {
+    id: AUTO_INCREMENT,
+    title: string,
+}
+
+Program::id *-- ProgramDistrict::program_id : < location
+ProgramStatus::id *-- Program::status_id
+class Program {
+    id: AUTO_INCREMENT,
+    title: string,
+    logo: string,file,
+    description: text,
+    ..
+    status_id:integer,
+}
+
+Program::id *-- ProgramDocument::program_id
+class ProgramDocument {
+    id:AUTO_INCREMENT,
+    ..
+    program_id,
+    document_id,
+}
+
+Program::id *-- ProgramNotification::program_id
+class ProgramNotification {
+    id:AUTO_INCREMENT,
+    ..
+    program_id,
+    notification_id,
+}
+
+class Donor {
+    id:AUTO_INCREMENT,
+    name: string,
+    about: text,
+}
+
+Gozar::id *-- ProjectGozar::gozar_id
+class ProjectGozar {
+    id:AUTO_INCREMENT,
+    ..
+    project_id,
+    gozar_id,
+}
+class ProjectStatus {
+    id: AUTO_INCREMENT,
+    title: string,
+} 
+
+Project::id *-- ProjectDistrict::project_id
+Donor::id *-- Project::donor_id
+Program::id *-- Project::program_id
+ProjectStatus::id *-- Project::status_id
+class Project {
+    id:AUTO_INCREMENT,
+    title:string,
+    start_date:date,
+    end_date:date,
+    code: string,
+    budget: decimal,
+    logo:string,
+    description:text,
+    kobo_project_id:string,
+    ..
+    donor_id,
+    program_id,
+    status_id,
+    staff_id,
+
+}
+
+Project::id *-- ProjectDocument::project_id
+class ProjectDocument {
+    id:AUTO_INCREMENT,
+    ..
+    project_id,
+    document_id,
+}
+
+Project::id *-- ProjectNotification::project_id
+class ProjectNotification {
+    id:AUTO_INCREMENT,
+    ..
+    project_id,
+    notification_id,
+}
+
+class Partner {
+    id:AUTO_INCREMENT,
+    business_name:string,
+    address1:text,
+    website:string,
+    business_license: string,
+    detail: text,
+}
+note left : Sub contractor
+
+Partner::id *-- PartnerDocument::partner_id
+class PartnerDocument {
+    id:AUTO_INCREMENT,
+    ..
+    partner_id,
+    document_id,
+}
+
+Partner::id *-- PartnerNotification::partner_id
+class PartnerNotification {
+    id:AUTO_INCREMENT,
+    ..
+    partner_id,
+    notification_id,
+}
+
+Partner::id <|-- Representative::partner_id
+class Representative {
+    id:AUTO_INCREMENT,
+    name:string,
+    phone1:string,
+    phone2:string,
+    email:string,
+    note:text,
+    ..
+    partner_id,
+}
+
+District::id *-- SubprojectDistrict::district_id
+class SubprojectDistrict {
+    id:AUTO_INCREMENT,
+    ..
+    subproject_id,
+    district_id,
+}
+
+class SubprojectType {
+    id:AUTO_INCREMENT,
+    name:string,
+}
+Subproject::id *-- SubprojectDistrict::subproject_id : < location
+Partner::id *-- Subproject::partner_id
+Project::id *-- Subproject::project_id
+SubprojectType::id *-- Subproject::type_id
+class Subproject {
+    id:AUTO_INCREMENT,
+    title:string,
+    budget: decimal,
+    anouncement_date:date,
+    date_of_contract:date,
+    number_of_days:integer,
+    description:text,
+    ..
+    partner_id,
+    project_id,
+    type_id,
+}
+note right: announcement_date -> by procuremnt
+note bottom: date_of_contract -> award to partner
+
+Subproject::id *-- SubprojectDocument::subproject_id
+class SubprojectDocument {
+    id:AUTO_INCREMENT,
+    ..
+    subproject_id,
+    document_id,
+}
+
+Subproject::id *-- SubprojectNotification::subproject_id
+class SubprojectNotification {
+    id:AUTO_INCREMENT,
+    ..
+    subproject_id,
+    notification_id,
+}
+
+class ActivityType {
+    id:AUTO_INCREMENT,
+    name:string,
+}
+
+class ActivityStatus {
+    id:AUTO_INCREMENT,
+    name:string,
+}
+
+District::id *-- Activity::distict_id : < location
+Project::id *-- Activity::project_id
+ActivityType::id *-- Activity::type_id
+ActivityStatus::id *-- Activity::status_id
+class Activity {
+    id:AUTO_INCREMENT,
+    title: string,
+    start_datetime:datetime,
+    end_datetime:datetime,
+    description:text,
+    ..
+    project_id,
+    type_id,
+    status_id,
+    staff_id,
+    district_id,
+
+}
+
+Activity::id *-- ActivityDocument::activity_id
+class ActivityDocument {
+    id:AUTO_INCREMENT,
+    ..
+    activity_id,
+    document_id,
+}
+
+Activity::id *-- ActivityNotification::activity_id
+class ActivityNotification {
+    id:AUTO_INCREMENT,
+    ..
+    activity_id,
+    notification_id,
+}
+
+class StaffStatus {
+    id:AUTO_INCREMENT,
+    title:string,
+}
+StaffStatus::id *-- Staff::status_id
+Staff::id *-- Activity::staff_id : < assigned to 
+Staff::id *-- Project::staff_id : < manage 
+class Staff {
+    id:AUTO_INCREMENT,
+    name:string,
+    position_title:string,
+    personal_email:string,
+    official_email:string,
+    phone1:string,
+    phone2:string,
+    photo:string,
+    duty_station:string,
+    date_of_joining:date,
+    about:text,
+    ..
+    status_id,
+
+}
+
+Staff::id *-- StaffDocument::staff_id
+class StaffDocument {
+    id:AUTO_INCREMENT,
+    ..
+    staff_id,
+    document_id,
+}
+
+Staff::id *-- StaffNotification::staff_id
+class StaffNotification {
+    id:AUTO_INCREMENT,
+    ..
+    staff_id,
+    notification_id,
+}
+
+class TicketStatus {
+    id:AUTO_INCREMENT,
+    title:string,
+}
+
+TicketStatus::id *-- Ticket::status_id
+Activity::id *-- Ticket::activity_id : < parent
+Staff::id *-- Ticket::assigned_to
+Staff::id *-- Ticket::assigned_by
+class Ticket {
+    id:AUTO_INCREMENT,
+    title:string,
+    start_datetime:datetime,
+    end_datetime:datetime,
+    description:text,
+    ..
+    assigned_to,
+    assigned_by,
+    status_id,
+    activity_id,
+}
+
+Ticket::id *-- TicketDocument::ticket_id : < attachments
+class TicketDocument {
+    id:AUTO_INCREMENT,
+    ..
+    ticket_id,
+    document_id,
+}
+
+Ticket::id *-- TicketNotification::ticket_id
+class TicketNotification {
+    id:AUTO_INCREMENT,
+    ..
+    ticket_id,
+    notification_id,
+}
+
+class SurveyStatus <<Module 2>> {
+    id:AUTO_INCREMENT,
+    title:string,
+}
+Project::id *-- Survey::project_id
+SurveyStatus::id *-- Survey::status_id
+class Survey <<Module 2>> {
+  id:AUTO_INCREMENT,
+  survey_name : String,
+  description : Text,
+  created_in : Enum ("System", "KOBO")
+  kobo_survey_id : String,
+  ..
+  project_id,
+  status_id,
+}
+
+Survey::id *-- SurveyQuestion::survey_id
+class SurveyQuestion <<Module 2>> {
+  question_id : AUTO_INCREMENT,
+  survey_id :integer,
+  question_text : Text,
+  question_type : Enum, 
+  options : JSON,
+  is_required : Boolean,
+  constraints : JSON,
+  ..
+  survey_id,
+}
+note bottom of SurveyQuestion 
+type -> 
+("Text", "Number", 
+"Multiple Choice", 
+"Date", "Time", "Geospatial", 
+"Media", "Ranking", "Rating", 
+"Matrix", "Calculation", 
+"Barcode", "Signature")
+end note
+
+ 
+SurveyQuestion::id *-- SurveyResponse::question_id
+class SurveyResponse <<Module 2>> {
+  response_id: AUTO_INCREMENT,
+  response_value : Text/JSON
+  respondent_id : Integer (Optional)
+  submitted_at : Timestamp,
+  ..
+  question_id,
+}
+
+Staff::id *-- User::staff_id
+class User <<Module 3>> {
+    id:AUTO_INCREMENT,
+    name:String,
+    email:String,
+    phone:String,
+    email_verified_at:timestamp,
+    phone_verified_at:timestamp,
+    password: String,
+    remember_token: String,
+    ..
+    staff_id
+}
+
+
+class Role <<Module 3>> {
+    id:AUTO_INCREMENT,
+    name:string,
+    guard_name:string,
+}
+User::id *-- UserHasRole::user_id
+Role::id *-- UserHasRole::role_id
+class UserHasRole <<Module 3>> {
+    role_type:string,
+    ..
+    role_id:bigint,
+    user_id:bigint,
+} 
+
+class Permission <<Module 3>> {
+    id:AUTO_INCREMENT,
+    name:string,
+    guard_name:string,
+    description:text,
+}
+
+User::id *-- UserHasPermission::user_id
+Permission::id *-- UserHasPermission::permission_id
+class UserHasPermission <<Module 3>> {
+    user_type:string,
+    ..
+    permission_id:bigint,
+    user_id:bigint,
+} 
+
+Permission::id *-- RoleHasPermission::permission_id
+Role::id *-- RoleHasPermission::role_id
+class RoleHasPermission <<Module 3>> {
+    ..
+    permission_id,
+    role_id,
+}
+
+User::id *-- Log::causer_id
+class Log <<Module 3>> {
+    id:AUTO_INCREMENT,
+    log_name:string,
+    description:text,
+    subject_type:string,
+    causer_type,
+    properties,
+    ..
+    subject_id:bigint,
+    causer_id:bigint,
+
+}
+
+
+
+
+
+
+Document::id <|-- ProgramDocument::document_id
+Document::id <|-- ProjectDocument::document_id
+Document::id <|-- PartnerDocument::document_id
+Document::id <|-- SubprojectDocument::document_id
+Document::id <|-- ActivityDocument::document_id
+Document::id <|-- StaffDocument::document_id
+Document::id <|-- TicketDocument::document_id
+class Document {
+    id:AUTO_INCREMENT,
+    title:string,
+    location:string,
+}
+
+class NotificationType {
+    id:AUTO_INCREMENT,
+    title:text, 
+}
+note bottom: title -> [CRUD, status changed]
+
+Notification::id <|-- ProgramNotification::notification_id
+Notification::id <|-- ProjectNotification::notification_id
+Notification::id <|-- PartnerNotification::notification_id
+Notification::id <|-- SubprojectNotification::notification_id
+Notification::id <|-- ActivityNotification::notification_id
+Notification::id <|-- StaffNotification::notification_id
+Notification::id <|-- TicketNotification::notification_id
+NotificationType::id *-- Notification::type_id
+class Notification {
+    id:AUTO_INCREMENT,
+    message:text,
+    is_read:boolean,
+    ..
+    type_id,
+    
+}
+
+
+@enduml

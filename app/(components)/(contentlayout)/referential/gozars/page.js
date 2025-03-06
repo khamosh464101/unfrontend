@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
 import { setDelete } from "@/shared/redux/features/deleteSlice";
+import ClearIndicator from "@/lib/select2";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
 const Gozars = () => {
@@ -26,7 +27,10 @@ const Gozars = () => {
   const deleteItem = useSelector((state) => state.delete.item);
   const [gozars, setGozars] = useState({});
   const [districts, setDistricts] = useState([]);
-  const [districtId, setDistrictId] = useState(null);
+  const [district, setDistrict] = useState(null);
+  const [disctrictAll, setDistrictAll] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [province, setProvince] = useState(null);
   const baseUrl = useSelector((state) => state.general.baseUrl);
   const [url, setUrl] = useState(`${baseUrl}/api/gozars`);
   const [search, setSearch] = useState("");
@@ -34,15 +38,20 @@ const Gozars = () => {
   useEffect(() => {
     if (session?.access_token && !deleteItem) {
       getGozars();
-      getDistrict();
     }
-  }, [url, session, sortBy, deleteItem, districtId]);
+  }, [url, session, sortBy, deleteItem, district, province]);
 
-  const getDistrict = async () => {
-    const res = await fetch(`${baseUrl}/api/districts/select2`, {
+  useEffect(() => {
+    if (session?.access_token) {
+      getDistrict();
+      getProvince();
+    }
+  }, [session]);
+
+  const getProvince = async () => {
+    const res = await fetch(`${baseUrl}/api/provinces/select2`, {
       method: "GET",
       headers: {
-       
         Authorization: `Bearer ${session.access_token}`,
         Accept: "application/json",
       },
@@ -56,10 +65,37 @@ const Gozars = () => {
       });
     } else {
       const result = await res.json();
-      const tmp = result.map((row) => {return {label: row.name, value: row.id}});
-      setDistricts(tmp);
+      const tmp = result.map((row) => {
+        return { label: row.name, value: row.id };
+      });
+      setProvinces(tmp);
     }
-  }
+  };
+  const getDistrict = async () => {
+    const res = await fetch(`${baseUrl}/api/districts/select2`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        Accept: "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      Swal.fire({
+        title: "warning",
+        text: "Something went wrong.",
+        icon: "warning",
+      });
+    } else {
+      const result = await res.json();
+      const tmp = result.map((row) => {
+        return { label: row.name, value: row.id, province_id: row.province_id };
+      });
+      setDistricts(tmp);
+      setDistrictAll(tmp);
+    }
+  };
+
   const getGozars = async () => {
     try {
       const res = await fetch(url, {
@@ -71,9 +107,10 @@ const Gozars = () => {
         },
 
         body: JSON.stringify({
-          search: search,
-          sortBy: sortBy,
-          districtId: districtId
+          search,
+          sortBy,
+          districtId: district?.value,
+          provinceId: province?.value,
         }),
       });
       if (!res.ok) {
@@ -134,28 +171,36 @@ const Gozars = () => {
       });
     }
   };
+
+  const onProvinceChange = (selectedProvince) => {
+    setProvince(selectedProvince);
+    console.log("this is selected", selectedProvince);
+    const selected = disctrictAll.filter(
+      (row) => row.province_id === selectedProvince?.value
+    );
+
+    setDistricts(selected);
+    setDistrict(null);
+  };
+
   return (
     <div>
       <Seo title={"Gozars"} />
-      <Pageheader
-        currentpage="Gozars"
-        activepage="Tables"
-        mainpage="Gozars"
-      />
+      <Pageheader currentpage="Gozars" activepage="Tables" mainpage="Gozars" />
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12">
           <div className="box">
             <div className="box-header">
               <div className="flex justify-between gap-4">
-              <div className="flex flex-wrap gap-1 newproject">
-                <Link
-                  href="/referential/gozars/create"
-                  className="ti-btn ti-btn-primary-full me-2 !mb-0"
-                >
-                  <i className="ri-add-line me-1 font-semibold align-middle"></i>
-                  New gozar
-                </Link>
-                <Select
+                <div className="flex flex-wrap gap-1 newproject">
+                  <Link
+                    href="/referential/gozars/create"
+                    className="ti-btn ti-btn-primary-full me-2 !mb-0"
+                  >
+                    <i className="ri-add-line me-1 font-semibold align-middle"></i>
+                    New gozar
+                  </Link>
+                  <Select
                     name="colors"
                     options={Optionsdata}
                     onChange={(e) => setSortBy(e.value)}
@@ -166,16 +211,30 @@ const Gozars = () => {
                   />
                   <Select
                     name="colors"
+                    options={provinces}
+                    isClearable
+                    components={{ ClearIndicator }}
+                    value={province}
+                    onChange={onProvinceChange}
+                    className="!w-40"
+                    menuPlacement="auto"
+                    classNamePrefix="Select2"
+                    placeholder="Province"
+                  />
+                  <Select
+                    name="colors"
                     options={districts}
-                    isClearable={true}
-                    onChange={(e) => setDistrictId(e.value)}
+                    value={district}
+                    onChange={(e) => setDistrict(e)}
+                    isClearable
+                    components={{ ClearIndicator }}
+                    isDisabled={!province}
                     className="!w-40"
                     menuPlacement="auto"
                     classNamePrefix="Select2"
                     placeholder="District"
-                    
                   />
-                  </div>
+                </div>
 
                 <div className="flex" role="search">
                   <input
@@ -213,8 +272,12 @@ const Gozars = () => {
                         <th scope="col" className="text-start">
                           Name pashto
                         </th>
+
                         <th scope="col" className="text-start">
                           District
+                        </th>
+                        <th scope="col" className="text-start">
+                          Province
                         </th>
                         <th scope="col" className="text-start">
                           Latitude
@@ -222,9 +285,7 @@ const Gozars = () => {
                         <th scope="col" className="text-start">
                           Longitude
                         </th>
-                        <th scope="col" className="text-start">
-                          Code
-                        </th>
+
                         <td scope="col" className="text-start">
                           Action
                         </td>
@@ -234,19 +295,14 @@ const Gozars = () => {
                       {gozars?.data &&
                         gozars.data.map((row, index) => (
                           <tr className="border-b border-defaultborder">
-                            <th scope="row">
-                              {row.name}
-                            </th>
+                            <th scope="row">{row.name}</th>
                             <td>{row.name_fa}</td>
-                            <td>
-                              {row.name_pa}
-                            </td>
-                            <td>
-                              {row.district.name}
-                            </td>
+                            <td>{row.name_pa}</td>
+                            <td>{row.district?.name}</td>
+                            <td>{row.district?.province?.name}</td>
                             <td>{row.latitude}</td>
                             <td>{row.longitude}</td>
-                            <td>{row.code}</td>
+
                             <td className="flex gap-2">
                               <button
                                 type="button"

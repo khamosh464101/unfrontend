@@ -18,7 +18,10 @@ const EditGozar = ({ params }) => {
   const { data: session, update } = useSession();
   const [loading, setLoading] = useState(false);
   const baseUrl = useSelector((state) => state.general.baseUrl);
-const [districts, setDistricts] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [disctrictAll, setDistrictAll] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [province, setProvince] = useState(null);
   const input = {
     name: "",
     name_fa: "",
@@ -32,32 +35,71 @@ const [districts, setDistricts] = useState([]);
   useEffect(() => {
     if (session?.access_token) {
       getGozar();
-      getProvinces();
+      getProvince();
     }
   }, [session, id]);
-  
-     const getProvinces = async () => {
-        const res = await fetch(`${baseUrl}/api/districts/select2`, {
-          method: "GET",
-          headers: {
-           
-            Authorization: `Bearer ${session.access_token}`,
-            Accept: "application/json",
-          },
-        });
-    
-        if (!res.ok) {
-          Swal.fire({
-            title: "warning",
-            text: "Something went wrong.",
-            icon: "warning",
-          });
-        } else {
-          const result = await res.json();
-          const tmp = result.map((row) => {return {label: row.name, value: row.id}});
-          setDistricts(tmp);
-        }
-      }
+
+  useEffect(() => {
+    if (formData.district_id && provinces.length > 0) {
+      getDistricts();
+    }
+  }, [formData, provinces]);
+
+  const getProvince = async () => {
+    const res = await fetch(`${baseUrl}/api/provinces/select2`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        Accept: "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      Swal.fire({
+        title: "warning",
+        text: "Something went wrong.",
+        icon: "warning",
+      });
+    } else {
+      const result = await res.json();
+      const tmp = result.map((row) => {
+        return { label: row.name, value: row.id };
+      });
+      setProvinces(tmp);
+    }
+  };
+
+  const getDistricts = async () => {
+    const res = await fetch(`${baseUrl}/api/districts/select2`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        Accept: "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      Swal.fire({
+        title: "warning",
+        text: "Something went wrong.",
+        icon: "warning",
+      });
+    } else {
+      const result = await res.json();
+      const tmp = result.map((row) => {
+        return { label: row.name, value: row.id, province_id: row.province_id };
+      });
+      const tmpDistrict = result.filter(
+        (row) => row.id === formData.district_id
+      );
+      const tmpProvince = provinces.filter(
+        (row) => row.value === tmpDistrict[0].province_id
+      );
+      setProvince(tmpProvince[0]);
+      setDistricts(tmp);
+      setDistrictAll(tmp);
+    }
+  };
   const getGozar = async () => {
     const res = await fetch(`${baseUrl}/api/gozar/${id}/edit`, {
       method: "GET",
@@ -80,7 +122,7 @@ const [districts, setDistricts] = useState([]);
 
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value ,
+      [name]: value,
     }));
   };
 
@@ -123,6 +165,20 @@ const [districts, setDistricts] = useState([]);
     console.log(result);
   };
 
+  const onProvinceChange = (selectedProvince) => {
+    setProvince(selectedProvince);
+    console.log("this is selected", selectedProvince);
+    const selected = disctrictAll.filter(
+      (row) => row.province_id === selectedProvince?.value
+    );
+
+    setDistricts(selected);
+    setFormData((prevData) => ({
+      ...prevData,
+      district_id: null,
+    }));
+  };
+
   return (
     <Fragment>
       <Seo title={"Edit gozar"} />
@@ -149,91 +205,27 @@ const [districts, setDistricts] = useState([]);
                 id="createProvince"
                 className="grid grid-cols-12 gap-4"
               >
-                <div className="xl:col-span-6 col-span-12">
-                  <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Name :
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="input-label"
-                    placeholder="Enter gozar name"
-                    name="name"
-                    required
-                    value={formData.name}
-                    onChange={handleChange}
-                  />
-                  
-                </div>
-                <div className="xl:col-span-6 col-span-12">
-                  <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Name Farsi :
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="input-label"
-                    placeholder="Enter gozar name farsi"
-                    name="name_fa"
-                    required
-                    value={formData.name_fa}
-                    onChange={handleChange}
-                  />
-                  
-                </div>
-                <div className="xl:col-span-6 col-span-12">
-                  <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Name Pashto :
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="input-label"
-                    placeholder="Enter gozar name pashto"
-                    name="name_pa"
-                    required
-                    value={formData.name_pa}
-                    onChange={handleChange}
-                  />
-                  
-                </div>
-                <div className="xl:col-span-6 col-span-12">
-                  <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Latitude :
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="input-label"
-                    placeholder="Enter gozar latitude"
-                    name="latitude"
-                    required
-                    value={formData.latitude}
-                    onChange={handleChange}
-                  />
-                  
-                </div>
-                <div className="xl:col-span-6 col-span-12">
-                  <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Longitude :
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="input-label"
-                    placeholder="Enter gozar longitude"
-                    name="longitude"
-                    required
-                    value={formData.longitude}
-                    onChange={handleChange}
-                  />
-                  
-                </div>
-    
                 <div className="xl:col-span-6 col-span-12 z-50">
                   <label className="form-label">
                     {" "}
                     <span className="text-red-500 mr-2">*</span> Province:
+                  </label>
+                  <Select
+                    name="province"
+                    required
+                    options={provinces}
+                    value={province}
+                    onChange={onProvinceChange}
+                    className="js-example-placeholder-multiple w-full js-states"
+                    menuPlacement="auto"
+                    classNamePrefix="Select2"
+                    placeholder="Select..."
+                  />
+                </div>
+                <div className="xl:col-span-6 col-span-12 z-50">
+                  <label className="form-label">
+                    {" "}
+                    <span className="text-red-500 mr-2">*</span> District:
                   </label>
                   <Select
                     name="district_id"
@@ -253,14 +245,88 @@ const [districts, setDistricts] = useState([]);
                           )
                         : null
                     }
+                    isDisabled={!province}
                     className="js-example-placeholder-multiple w-full js-states"
                     menuPlacement="auto"
                     classNamePrefix="Select2"
                     placeholder="select..."
                   />
                 </div>
-
-                
+                <div className="xl:col-span-4 col-span-12">
+                  <label htmlFor="input-label" className="form-label">
+                    <span className="text-red-500 mr-2">*</span> Name :
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="input-label"
+                    placeholder="Enter gozar name"
+                    name="name"
+                    required
+                    value={formData.name}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="xl:col-span-4 col-span-12">
+                  <label htmlFor="input-label" className="form-label">
+                    <span className="text-red-500 mr-2">*</span> Name Farsi :
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="input-label"
+                    placeholder="Enter gozar name farsi"
+                    name="name_fa"
+                    required
+                    value={formData.name_fa}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="xl:col-span-4 col-span-12">
+                  <label htmlFor="input-label" className="form-label">
+                    <span className="text-red-500 mr-2">*</span> Name Pashto :
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="input-label"
+                    placeholder="Enter gozar name pashto"
+                    name="name_pa"
+                    required
+                    value={formData.name_pa}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="xl:col-span-6 col-span-12">
+                  <label htmlFor="input-label" className="form-label">
+                    <span className="text-red-500 mr-2">*</span> Latitude :
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="input-label"
+                    placeholder="Enter gozar latitude"
+                    name="latitude"
+                    required
+                    value={formData.latitude}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="xl:col-span-6 col-span-12">
+                  <label htmlFor="input-label" className="form-label">
+                    <span className="text-red-500 mr-2">*</span> Longitude :
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="input-label"
+                    placeholder="Enter gozar longitude"
+                    name="longitude"
+                    required
+                    value={formData.longitude}
+                    onChange={handleChange}
+                  />
+                </div>
               </form>
             </div>
             <div className="box-footer">

@@ -18,6 +18,9 @@ const CreateGozar = () => {
   const [loading, setLoading] = useState(false);
   const baseUrl = useSelector((state) => state.general.baseUrl);
   const [districts, setDistricts] = useState([]);
+  const [disctrictAll, setDistrictAll] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [province, setProvince] = useState(null);
 
   const input = {
     name: "",
@@ -25,37 +28,63 @@ const CreateGozar = () => {
     name_pa: "",
     longitude: "",
     latitude: "",
-    district_id: ""
+    district_id: "",
   };
   const [formData, setFormData] = useState(input);
 
   useEffect(() => {
-    if(session?.access_token) {
+    if (session?.access_token) {
       getDistricts();
+      getProvince();
     }
-  }, [session])
-   const getDistricts = async () => {
-      const res = await fetch(`${baseUrl}/api/districts/select2`, {
-        method: "GET",
-        headers: {
-         
-          Authorization: `Bearer ${session.access_token}`,
-          Accept: "application/json",
-        },
+  }, [session]);
+  const getProvince = async () => {
+    const res = await fetch(`${baseUrl}/api/provinces/select2`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        Accept: "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      Swal.fire({
+        title: "warning",
+        text: "Something went wrong.",
+        icon: "warning",
       });
-  
-      if (!res.ok) {
-        Swal.fire({
-          title: "warning",
-          text: "Something went wrong.",
-          icon: "warning",
-        });
-      } else {
-        const result = await res.json();
-        const tmp = result.map((row) => {return {label: row.name, value: row.id}});
-        setDistricts(tmp);
-      }
+    } else {
+      const result = await res.json();
+      const tmp = result.map((row) => {
+        return { label: row.name, value: row.id };
+      });
+      setProvinces(tmp);
     }
+  };
+  const getDistricts = async () => {
+    const res = await fetch(`${baseUrl}/api/districts/select2`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        Accept: "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      Swal.fire({
+        title: "warning",
+        text: "Something went wrong.",
+        icon: "warning",
+      });
+    } else {
+      const result = await res.json();
+      const tmp = result.map((row) => {
+        return { label: row.name, value: row.id, province_id: row.province_id };
+      });
+      setDistricts(tmp);
+      setDistrictAll(tmp);
+    }
+  };
 
   // Handle change for text fields
   const handleChange = (e) => {
@@ -64,7 +93,7 @@ const CreateGozar = () => {
 
     setFormData((prevData) => ({
       ...prevData,
-    [name]: value,
+      [name]: value,
     }));
   };
 
@@ -108,6 +137,20 @@ const CreateGozar = () => {
     console.log(result);
   };
 
+  const onProvinceChange = (selectedProvince) => {
+    setProvince(selectedProvince);
+    console.log("this is selected", selectedProvince);
+    const selected = disctrictAll.filter(
+      (row) => row.province_id === selectedProvince?.value
+    );
+
+    setDistricts(selected);
+    setFormData((prevData) => ({
+      ...prevData,
+      district_id: null,
+    }));
+  };
+
   return (
     <Fragment>
       <Seo title={"Create Gozar"} />
@@ -134,87 +177,23 @@ const CreateGozar = () => {
                 id="createGozar"
                 className="grid grid-cols-12 gap-4"
               >
-                <div className="xl:col-span-6 col-span-12">
-                  <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Name :
+                <div className="xl:col-span-6 col-span-12 z-50">
+                  <label className="form-label">
+                    {" "}
+                    <span className="text-red-500 mr-2">*</span> Province:
                   </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="input-label"
-                    placeholder="Enter district name"
-                    name="name"
+                  <Select
+                    name="province"
                     required
-                    value={formData.name}
-                    onChange={handleChange}
+                    options={provinces}
+                    value={province}
+                    onChange={onProvinceChange}
+                    className="js-example-placeholder-multiple w-full js-states"
+                    menuPlacement="auto"
+                    classNamePrefix="Select2"
+                    placeholder="Select..."
                   />
-                  
                 </div>
-                <div className="xl:col-span-6 col-span-12">
-                  <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Name Farsi :
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="input-label"
-                    placeholder="Enter district name farsi"
-                    name="name_fa"
-                    required
-                    value={formData.name_fa}
-                    onChange={handleChange}
-                  />
-                  
-                </div>
-                <div className="xl:col-span-6 col-span-12">
-                  <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Name Pashto :
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="input-label"
-                    placeholder="Enter district name pashto"
-                    name="name_pa"
-                    required
-                    value={formData.name_pa}
-                    onChange={handleChange}
-                  />
-                  
-                </div>
-                <div className="xl:col-span-6 col-span-12">
-                  <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Latitude :
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="input-label"
-                    placeholder="Enter district latitude"
-                    name="latitude"
-                    required
-                    value={formData.latitude}
-                    onChange={handleChange}
-                  />
-                  
-                </div>
-                <div className="xl:col-span-6 col-span-12">
-                  <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Longitude :
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="input-label"
-                    placeholder="Enter district longitude"
-                    name="longitude"
-                    required
-                    value={formData.longitude}
-                    onChange={handleChange}
-                  />
-                  
-                </div>
-      
                 <div className="xl:col-span-6 col-span-12 z-50">
                   <label className="form-label">
                     {" "}
@@ -238,13 +217,88 @@ const CreateGozar = () => {
                           )
                         : null
                     }
+                    isDisabled={!province}
                     className="js-example-placeholder-multiple w-full js-states"
                     menuPlacement="auto"
                     classNamePrefix="Select2"
                     placeholder="select..."
                   />
                 </div>
-         
+                <div className="xl:col-span-4 col-span-12">
+                  <label htmlFor="input-label" className="form-label">
+                    <span className="text-red-500 mr-2">*</span> Name :
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="input-label"
+                    placeholder="Enter district name"
+                    name="name"
+                    required
+                    value={formData.name}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="xl:col-span-4 col-span-12">
+                  <label htmlFor="input-label" className="form-label">
+                    <span className="text-red-500 mr-2">*</span> Name Farsi :
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="input-label"
+                    placeholder="Enter district name farsi"
+                    name="name_fa"
+                    required
+                    value={formData.name_fa}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="xl:col-span-4 col-span-12">
+                  <label htmlFor="input-label" className="form-label">
+                    <span className="text-red-500 mr-2">*</span> Name Pashto :
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="input-label"
+                    placeholder="Enter district name pashto"
+                    name="name_pa"
+                    required
+                    value={formData.name_pa}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="xl:col-span-6 col-span-12">
+                  <label htmlFor="input-label" className="form-label">
+                    <span className="text-red-500 mr-2">*</span> Latitude :
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="input-label"
+                    placeholder="Enter district latitude"
+                    name="latitude"
+                    required
+                    value={formData.latitude}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="xl:col-span-6 col-span-12">
+                  <label htmlFor="input-label" className="form-label">
+                    <span className="text-red-500 mr-2">*</span> Longitude :
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="input-label"
+                    placeholder="Enter district longitude"
+                    name="longitude"
+                    required
+                    value={formData.longitude}
+                    onChange={handleChange}
+                  />
+                </div>
               </form>
             </div>
             <div className="box-footer">
