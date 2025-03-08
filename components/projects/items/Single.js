@@ -67,7 +67,7 @@ function Single({ row, apiUrl }) {
     }
   };
   return (
-    <div className="xxl:col-span-3 xl:col-span-4 md:col-span-6 col-span-12">
+    <div className=" xl:col-span-4 md:col-span-6 col-span-12">
       <div className="box custom-box">
         <div className="box-header items-center !justify-start flex-wrap !flex">
           <div className="me-2">
@@ -81,7 +81,7 @@ function Single({ row, apiUrl }) {
               scroll={false}
               className="font-semibold text-[.875rem] block text-truncate project-list-title"
             >
-              {row.name}
+              {row.title}
             </Link>
             <span className="text-[#8c9097] dark:text-white/50 block text-[0.75rem]">
               Total{" "}

@@ -1,11 +1,9 @@
 "use client";
-import Create from "@/components/attachments/Create";
+
 import Attachment from "@/components/projects/Attachment";
 import Location from "@/components/projects/Location";
 import Log from "@/components/projects/Log";
 import Member from "@/components/projects/Member";
-import { getFileIcon } from "@/lib/getFileIcon";
-import stringToDate from "@/lib/stringToData";
 import Pageheader from "@/shared/layout-components/page-header/pageheader";
 import Seo from "@/shared/layout-components/seo/seo";
 import { useSession } from "next-auth/react";
@@ -21,16 +19,16 @@ const Projectoverview = ({ params }) => {
   const [project, setProject] = useState({});
   const [activities, setActivities] = useState([]);
   const [documents, setDocuments] = useState([]);
-  const [createOpen, setCreateOpen] = useState(false);
+  const [staff, setStaff] = useState([]);
+  const [gozars, setGozars] = useState([]);
   const baseUrl = useSelector((state) => state.general.baseUrl);
-  const items = [
+  const menus = [
     { name: "Log", icon: "ri-chat-history-line" },
     { name: "Location", icon: "ri-map-pin-2-line" },
     { name: "Members", icon: "ri-group-line" },
     { name: "Attachements", icon: "ri-attachment-line" },
-  ];
-  const [menus, setMenus] = useState(items);
-  const [menu, setMenu] = useState(items[0]);
+  ]
+  const [menu, setMenu] = useState(menus[0]);
 
   const router = useRouter();
   useEffect(() => {
@@ -51,48 +49,12 @@ const Projectoverview = ({ params }) => {
     if (result.id) {
       setDocuments(result.documents);
       setActivities(result.activities);
+      setStaff(result.staff);
+      setGozars(result.gozars);
       setProject(result);
     }
   };
 
-  const deleteDocument = async (did) => {
-    try {
-      const res = await fetch(`${baseUrl}/api/document/${did}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          Accept: "application/json",
-        },
-      });
-
-      const result = await res.json();
-
-      if (!res.ok) {
-        // If response is not OK, show the error message
-        Swal.fire({
-          title: "Error",
-          text:
-            result.message || "An error occurred while deleting the document.",
-          icon: "error",
-        });
-        return;
-      }
-
-      Swal.fire({
-        title: "Success",
-        text: "Document deleted successfully.",
-        icon: "success",
-      });
-      const tmp = documents.filter((item) => item.id !== did);
-      setDocuments(tmp);
-    } catch (error) {
-      Swal.fire({
-        title: "Error",
-        text: error.message || "An unexpected error occurred.",
-        icon: "error",
-      });
-    }
-  };
 
   const deleteProject = async () => {
     try {
@@ -244,7 +206,7 @@ const Projectoverview = ({ params }) => {
             <div className="box-header flex flex-row justify-between">
               {menus.map((row, index) => (
                 <button
-                  onClick={() => setMenu(items[index])}
+                  onClick={() => setMenu(menus[index])}
                   className={`${
                     row.name == menu.name
                       ? "text-blue-500 border-b-2 border-blue-500"
@@ -258,8 +220,8 @@ const Projectoverview = ({ params }) => {
             </div>
             <div className="box-body">
               {menu.name == "Log" && <Log project={project} />}
-              {menu.name == "Location" && <Location project={project} />}
-              {menu.name == "Members" && <Member project={project} />}
+              {menu.name == "Location" && <Location project={project} gozars={gozars} setGozars={setGozars} />}
+              {menu.name == "Members" && <Member project={project} setStaff={setStaff} staff={staff} />}
               {menu.name == "Attachements" && (
                 <Attachment
                   type={"Project"}
@@ -324,100 +286,6 @@ const Projectoverview = ({ params }) => {
             </div>
           </div>
 
-          <div className="box custom-box overflow-hidden">
-            <div className="box-header justify-between">
-              <div className="box-title">Project Documents</div>
-              <button
-                onClick={() => setCreateOpen(true)}
-                className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-light btn-wave"
-              >
-                <i className="ri-add-line align-middle me-1 font-semibold"></i>
-                Add file
-              </button>
-            </div>
-            <div className="box-body !p-0">
-              <ul className="list-group list-group-flush">
-                {documents?.map((row, index) => (
-                  <li key={index} className="list-group-item !border-t-0">
-                    <div className="flex items-center">
-                      <div className="me-2">
-                        <span className="avatar !rounded-full p-2">
-                          <i
-                            className={`${getFileIcon(row.path)}`}
-                            style={{ fontSize: "30px" }}
-                          ></i>
-                          {/* <img
-                            src="../../../assets/images/media/file-manager/1.png"
-                            alt=""
-                          /> */}
-                        </span>
-                      </div>
-                      <div className="flex-grow">
-                        <Link href="#!" scroll={false}>
-                          <span className="block font-semibold w-48 text-truncate">
-                            {row.title}
-                          </span>
-                        </Link>
-                        <span className="block text-[#8c9097] dark:text-white/50 text-[0.75rem] font-normal">
-                          {row.size > 1
-                            ? `${row.size}MB`
-                            : `${row.size * 1000}KB`}
-                        </span>
-                      </div>
-                      <div className="inline-flex">
-                        <a
-                          href={row.path}
-                          download={row.path}
-                          className="ti-btn ti-btn-sm ti-btn-info me-[0.375rem]"
-                        >
-                          <i className="ri-download-line"></i>
-                        </a>
-                        {/* <button
-                          aria-label="button"
-                          type="button"
-                          className="ti-btn ti-btn-sm ti-btn-info me-[0.375rem]"
-                        >
-                          <i className="ri-edit-line"></i>
-                        </button> */}
-                        <button
-                          onClick={() =>
-                            Swal.fire({
-                              title: "Are you sure?",
-                              text: "You won't be able to revert this!",
-                              icon: "warning",
-                              showCancelButton: true,
-                              confirmButtonColor: "#3085d6",
-                              cancelButtonColor: "#d33",
-                              confirmButtonText: "Yes, delete it!",
-                            }).then((result) => {
-                              if (result.isConfirmed) {
-                                deleteDocument(row.id);
-                              }
-                            })
-                          }
-                          aria-label="button"
-                          type="button"
-                          className="ti-btn ti-btn-sm ti-btn-danger"
-                        >
-                          <i className="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {createOpen && (
-            <Create
-              type="Project"
-              id={id}
-              createOpen={createOpen}
-              setCreateOpen={setCreateOpen}
-              setDocuments={setDocuments}
-            />
-          )}
         </div>
       </div>
     </Fragment>

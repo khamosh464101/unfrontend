@@ -66,7 +66,7 @@ function Single({ row, apiUrl }) {
     }
   };
   return (
-    <div className="xxl:col-span-3 xl:col-span-4 md:col-span-6 col-span-12">
+    <div className="xl:col-span-4 md:col-span-6 col-span-12">
       <div className="box custom-box">
         <div className="box-header items-center !justify-start flex-wrap !flex">
           <div className="me-2">

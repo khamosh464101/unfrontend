@@ -12,7 +12,6 @@ function Attachment({ documents, setDocuments, type, id }) {
   const { data: session } = useSession();
   const [files, setFiles] = useState([]);
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
   const [imgId, setImgId] = useState("");
 
   useEffect(() => {
@@ -34,7 +33,6 @@ function Attachment({ documents, setDocuments, type, id }) {
           id,
           title,
           imgId,
-          description,
           type,
         }),
       });
@@ -42,7 +40,10 @@ function Attachment({ documents, setDocuments, type, id }) {
       if (response.ok) {
         const result = await response.json();
         setDocuments((prv) => [...prv, result]);
-        setCreateOpen(false);
+        setFiles([]);
+        setTitle("");
+
+
         console.log("File uploaded successfully:", result);
       } else {
         console.error("Upload failed:", response.statusText);
@@ -91,7 +92,7 @@ function Attachment({ documents, setDocuments, type, id }) {
   };
   return (
     <div className="grid md:grid-cols-1 lg:grid-cols-2 mx-auto gap-4">
-      <div className=" border rounded-r-xl bg-slate-100 p-4">
+      <div className="border bg-blue-500 p-4">
         <form onSubmit={handleFileUpload} className="p-4">
           <div className="mb-4">
             <label
@@ -105,6 +106,7 @@ function Attachment({ documents, setDocuments, type, id }) {
               className="form-control"
               id="form-text"
               placeholder=""
+              value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
             />
@@ -170,20 +172,7 @@ function Attachment({ documents, setDocuments, type, id }) {
               }}
             />
           </div>
-          <div className="mb-4">
-            <label
-              htmlFor="form-text"
-              className="form-label !text-[.875rem] text-black"
-            >
-              Description
-            </label>
-            <textarea
-              className="form-control"
-              id="form-text"
-              placeholder=""
-              onChange={(e) => setDescription(e.target.value)}
-            ></textarea>
-          </div>
+       
 
           <button className="ti-btn ti-btn-primary-full" type="submit">
             Submit
