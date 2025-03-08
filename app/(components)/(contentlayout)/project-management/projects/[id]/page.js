@@ -1,5 +1,9 @@
 "use client";
 import Create from "@/components/attachments/Create";
+import Attachment from "@/components/projects/Attachment";
+import Location from "@/components/projects/Location";
+import Log from "@/components/projects/Log";
+import Member from "@/components/projects/Member";
 import { getFileIcon } from "@/lib/getFileIcon";
 import stringToDate from "@/lib/stringToData";
 import Pageheader from "@/shared/layout-components/page-header/pageheader";
@@ -8,6 +12,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { Fragment, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
 const Projectoverview = ({ params }) => {
@@ -17,7 +22,16 @@ const Projectoverview = ({ params }) => {
   const [activities, setActivities] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [createOpen, setCreateOpen] = useState(false);
-  const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const baseUrl = useSelector((state) => state.general.baseUrl);
+  const items = [
+    { name: "Log", icon: "ri-chat-history-line" },
+    { name: "Location", icon: "ri-map-pin-2-line" },
+    { name: "Members", icon: "ri-group-line" },
+    { name: "Attachements", icon: "ri-attachment-line" },
+  ];
+  const [menus, setMenus] = useState(items);
+  const [menu, setMenu] = useState(items[0]);
+
   const router = useRouter();
   useEffect(() => {
     if (session?.access_token) {
@@ -25,7 +39,7 @@ const Projectoverview = ({ params }) => {
     }
   }, [session, id]);
   const getProject = async () => {
-    const res = await fetch(`${apiUrl}/api/project/${id}/edit`, {
+    const res = await fetch(`${baseUrl}/api/project/${id}/edit`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${session.access_token}`,
@@ -43,7 +57,7 @@ const Projectoverview = ({ params }) => {
 
   const deleteDocument = async (did) => {
     try {
-      const res = await fetch(`${apiUrl}/api/document/${did}`, {
+      const res = await fetch(`${baseUrl}/api/document/${did}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -82,7 +96,7 @@ const Projectoverview = ({ params }) => {
 
   const deleteProject = async () => {
     try {
-      const response = await fetch(`${apiUrl}/api/project/${id}`, {
+      const response = await fetch(`${baseUrl}/api/project/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -227,34 +241,33 @@ const Projectoverview = ({ params }) => {
             </div>
           </div>
           <div className="box custom-box">
-            <div className="box-header">
-              <div className="box-title">History Log</div>
+            <div className="box-header flex flex-row justify-between">
+              {menus.map((row, index) => (
+                <button
+                  onClick={() => setMenu(items[index])}
+                  className={`${
+                    row.name == menu.name
+                      ? "text-blue-500 border-b-2 border-blue-500"
+                      : "hover:border-b-2 hover:border-blue-500 hover:text-blue-500"
+                  } px-4 py-2`}
+                >
+                  <i className={`${row.icon} mr-2`}></i>
+                  {row.name}
+                </button>
+              ))}
             </div>
             <div className="box-body">
-              <ul className="list-unstyled profile-timeline">
-                {project?.logs?.map((row, index) => (
-                  <li key={index}>
-                    <div>
-                      <span className="avatar avatar-sm  profile-timeline-avatar">
-                        <img
-                          src="../../../assets/images/faces/11.jpg"
-                          alt=""
-                          className="!rounded-full"
-                        />
-                      </span>
-                      <p className="text-[#8c9097] dark:text-white/50 mb-2">
-                        <span className="text-default">{row.description}</span>.
-                        <span className="float-end text-[0.6875rem] text-[#8c9097] dark:text-white/50">
-                          {stringToDate(row.created_at)}
-                        </span>
-                      </p>
-                      {/* <p className="text-[#8c9097] dark:text-white/50 mb-0">
-               
-                      </p> */}
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              {menu.name == "Log" && <Log project={project} />}
+              {menu.name == "Location" && <Location project={project} />}
+              {menu.name == "Members" && <Member project={project} />}
+              {menu.name == "Attachements" && (
+                <Attachment
+                  type={"Project"}
+                  id={project.id}
+                  documents={documents}
+                  setDocuments={setDocuments}
+                />
+              )}
             </div>
           </div>
         </div>
