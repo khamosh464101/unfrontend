@@ -14,20 +14,20 @@ import Swal from "sweetalert2";
 import { setDelete } from "@/shared/redux/features/deleteSlice";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
-const ActivityType = () => {
+const TicketStatus = () => {
   const { data: session } = useSession();
   const dispatch = useDispatch();
   const deleteItem = useSelector((state) => state.delete.item);
-  const [types, setTypes] = useState({});
+  const [statuses, setStatuses] = useState({});
   const baseUrl = useSelector((state) => state.general.baseUrl);
-  const [url, setUrl] = useState(`${baseUrl}/api/activity-types`);
+  const [url, setUrl] = useState(`${baseUrl}/api/ticket-statuses`);
   const [search, setSearch] = useState("");
   useEffect(() => {
     if (session?.access_token && !deleteItem) {
-      getTypes();
+      getStatuses();
     }
   }, [url, session, deleteItem]);
-  const getTypes = async () => {
+  const getStatuses = async () => {
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -49,7 +49,7 @@ const ActivityType = () => {
         });
       } else {
         const result = await res.json();
-        setTypes(result);
+        setStatuses(result);
       }
     } catch (error) {
       Swal.fire({
@@ -63,7 +63,7 @@ const ActivityType = () => {
   const deleteStatus = async (id) => {
     try {
       dispatch(setDelete());
-      const response = await fetch(`${baseUrl}/api/activity-type/${id}`, {
+      const response = await fetch(`${baseUrl}/api/ticket-status/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -101,11 +101,11 @@ const ActivityType = () => {
   };
   return (
     <div>
-      <Seo title={"Activty Types"} />
+      <Seo title={"Ticket Statuses"} />
       <Pageheader
-        currentpage="Activty Types"
+        currentpage="Ticket Statuses"
         activepage="Tables"
-        mainpage="Activty Types"
+        mainpage="Ticket Statuses"
       />
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12">
@@ -113,23 +113,23 @@ const ActivityType = () => {
             <div className="box-header">
               <div className="flex justify-between gap-4">
                 <Link
-                  href="/referential/activity-type/create"
+                  href="/referential/ticket-status/create"
                   className="ti-btn ti-btn-primary-full me-2 !mb-0"
                 >
                   <i className="ri-add-line me-1 font-semibold align-middle"></i>
-                  New Type
+                  New Status
                 </Link>
 
                 <div className="flex" role="search">
                   <input
                     className="form-control me-2"
                     type="search"
-                    placeholder="Search Project"
+                    placeholder="Search Ticket"
                     aria-label="Search"
                     onChange={(e) => setSearch(e.target.value)}
                   />
                   <button
-                    onClick={getTypes}
+                    onClick={getStatuses}
                     className="ti-btn ti-btn-light !mb-0"
                     type="submit"
                   >
@@ -148,13 +148,13 @@ const ActivityType = () => {
                     <thead>
                       <tr className="border-b border-defaultborder">
                         <th scope="col" className="text-start">
-                          Ticket type color
+                          Status color
                         </th>
                         <th scope="col" className="text-start">
-                          Ticket type title
+                          Status title
                         </th>
                         <th scope="col" className="text-start">
-                          Default type
+                          Default status
                         </th>
                         <th scope="col" className="text-start">
                           created at
@@ -165,8 +165,8 @@ const ActivityType = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {types?.data &&
-                        types.data.map((row, index) => (
+                      {statuses?.data &&
+                        statuses.data.map((row, index) => (
                           <tr className="border-b border-defaultborder">
                             <th scope="row">
                               <div
@@ -210,7 +210,7 @@ const ActivityType = () => {
                                 Delete
                               </button>
                               <Link
-                                href={`/referential/activity-type/edit/${row.id}`}
+                                href={`/referential/ticket-status/edit/${row.id}`}
                                 className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-success-full btn-wave"
                               >
                                 <i className="ri-edit-2-line align-middle me-2 inline-block"></i>
@@ -223,9 +223,9 @@ const ActivityType = () => {
                   </table>
                   <nav aria-label="Page navigation">
                     <ul className="ti-pagination ltr:float-right rtl:float-left mb-4">
-                      {types.links &&
-                        types.links.length > 3 &&
-                        types.links.map((row, index) => (
+                      {statuses.links &&
+                        statuses.links.length > 3 &&
+                        statuses.links.map((row, index) => (
                           <li
                             className={`page-item ${
                               row.active || row.url == null ? "disabled" : ""
@@ -252,4 +252,4 @@ const ActivityType = () => {
   );
 };
 
-export default ActivityType;
+export default TicketStatus;

@@ -304,6 +304,16 @@ class TicketStatus {
     title:string,
 }
 
+class TicketPriority {
+    id:AUTO_INCREMENT,
+    title:string,
+}
+
+class TicketType {
+    id:AUTO_INCREMENT,
+    title:string,
+}
+
 TicketStatus::id *-- Ticket::status_id
 Activity::id *-- Ticket::activity_id : < parent
 Staff::id *-- Ticket::assigned_to
@@ -318,6 +328,8 @@ class Ticket {
     assigned_to,
     assigned_by,
     status_id,
+    priority_id,
+    type_id,
     activity_id,
 }
 

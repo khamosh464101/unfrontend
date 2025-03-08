@@ -14,20 +14,20 @@ import Swal from "sweetalert2";
 import { setDelete } from "@/shared/redux/features/deleteSlice";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
-const ActivityType = () => {
+const TicketPriority = () => {
   const { data: session } = useSession();
   const dispatch = useDispatch();
   const deleteItem = useSelector((state) => state.delete.item);
-  const [types, setTypes] = useState({});
+  const [priorities, setPriorities] = useState({});
   const baseUrl = useSelector((state) => state.general.baseUrl);
-  const [url, setUrl] = useState(`${baseUrl}/api/activity-types`);
+  const [url, setUrl] = useState(`${baseUrl}/api/ticket-priorities`);
   const [search, setSearch] = useState("");
   useEffect(() => {
     if (session?.access_token && !deleteItem) {
-      getTypes();
+      getPriorities();
     }
   }, [url, session, deleteItem]);
-  const getTypes = async () => {
+  const getPriorities = async () => {
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -49,7 +49,7 @@ const ActivityType = () => {
         });
       } else {
         const result = await res.json();
-        setTypes(result);
+        setPriorities(result);
       }
     } catch (error) {
       Swal.fire({
@@ -63,7 +63,7 @@ const ActivityType = () => {
   const deleteStatus = async (id) => {
     try {
       dispatch(setDelete());
-      const response = await fetch(`${baseUrl}/api/activity-type/${id}`, {
+      const response = await fetch(`${baseUrl}/api/ticket-priority/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -101,11 +101,11 @@ const ActivityType = () => {
   };
   return (
     <div>
-      <Seo title={"Activty Types"} />
+      <Seo title={"Activty Priorities"} />
       <Pageheader
-        currentpage="Activty Types"
+        currentpage="Activty Priorities"
         activepage="Tables"
-        mainpage="Activty Types"
+        mainpage="Activty Priorities"
       />
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12">
@@ -113,11 +113,11 @@ const ActivityType = () => {
             <div className="box-header">
               <div className="flex justify-between gap-4">
                 <Link
-                  href="/referential/activity-type/create"
+                  href="/referential/ticket-priority/create"
                   className="ti-btn ti-btn-primary-full me-2 !mb-0"
                 >
                   <i className="ri-add-line me-1 font-semibold align-middle"></i>
-                  New Type
+                  New Priority
                 </Link>
 
                 <div className="flex" role="search">
@@ -129,7 +129,7 @@ const ActivityType = () => {
                     onChange={(e) => setSearch(e.target.value)}
                   />
                   <button
-                    onClick={getTypes}
+                    onClick={getPriorities}
                     className="ti-btn ti-btn-light !mb-0"
                     type="submit"
                   >
@@ -148,13 +148,13 @@ const ActivityType = () => {
                     <thead>
                       <tr className="border-b border-defaultborder">
                         <th scope="col" className="text-start">
-                          Ticket type color
+                          Ticket priority color
                         </th>
                         <th scope="col" className="text-start">
-                          Ticket type title
+                          Ticket priority title
                         </th>
                         <th scope="col" className="text-start">
-                          Default type
+                          Default priority
                         </th>
                         <th scope="col" className="text-start">
                           created at
@@ -165,8 +165,8 @@ const ActivityType = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {types?.data &&
-                        types.data.map((row, index) => (
+                      {priorities?.data &&
+                        priorities.data.map((row, index) => (
                           <tr className="border-b border-defaultborder">
                             <th scope="row">
                               <div
@@ -210,7 +210,7 @@ const ActivityType = () => {
                                 Delete
                               </button>
                               <Link
-                                href={`/referential/activity-type/edit/${row.id}`}
+                                href={`/referential/ticket-priority/edit/${row.id}`}
                                 className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-success-full btn-wave"
                               >
                                 <i className="ri-edit-2-line align-middle me-2 inline-block"></i>
@@ -223,9 +223,9 @@ const ActivityType = () => {
                   </table>
                   <nav aria-label="Page navigation">
                     <ul className="ti-pagination ltr:float-right rtl:float-left mb-4">
-                      {types.links &&
-                        types.links.length > 3 &&
-                        types.links.map((row, index) => (
+                      {priorities.links &&
+                        priorities.links.length > 3 &&
+                        priorities.links.map((row, index) => (
                           <li
                             className={`page-item ${
                               row.active || row.url == null ? "disabled" : ""
@@ -252,4 +252,4 @@ const ActivityType = () => {
   );
 };
 
-export default ActivityType;
+export default TicketPriority;

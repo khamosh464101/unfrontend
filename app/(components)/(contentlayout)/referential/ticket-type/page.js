@@ -14,13 +14,13 @@ import Swal from "sweetalert2";
 import { setDelete } from "@/shared/redux/features/deleteSlice";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
-const ActivityType = () => {
+const TicketType = () => {
   const { data: session } = useSession();
   const dispatch = useDispatch();
   const deleteItem = useSelector((state) => state.delete.item);
   const [types, setTypes] = useState({});
   const baseUrl = useSelector((state) => state.general.baseUrl);
-  const [url, setUrl] = useState(`${baseUrl}/api/activity-types`);
+  const [url, setUrl] = useState(`${baseUrl}/api/ticket-types`);
   const [search, setSearch] = useState("");
   useEffect(() => {
     if (session?.access_token && !deleteItem) {
@@ -63,7 +63,7 @@ const ActivityType = () => {
   const deleteStatus = async (id) => {
     try {
       dispatch(setDelete());
-      const response = await fetch(`${baseUrl}/api/activity-type/${id}`, {
+      const response = await fetch(`${baseUrl}/api/ticket-type/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -113,7 +113,7 @@ const ActivityType = () => {
             <div className="box-header">
               <div className="flex justify-between gap-4">
                 <Link
-                  href="/referential/activity-type/create"
+                  href="/referential/ticket-type/create"
                   className="ti-btn ti-btn-primary-full me-2 !mb-0"
                 >
                   <i className="ri-add-line me-1 font-semibold align-middle"></i>
@@ -210,7 +210,7 @@ const ActivityType = () => {
                                 Delete
                               </button>
                               <Link
-                                href={`/referential/activity-type/edit/${row.id}`}
+                                href={`/referential/ticket-type/edit/${row.id}`}
                                 className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-success-full btn-wave"
                               >
                                 <i className="ri-edit-2-line align-middle me-2 inline-block"></i>
@@ -252,4 +252,4 @@ const ActivityType = () => {
   );
 };
 
-export default ActivityType;
+export default TicketType;
