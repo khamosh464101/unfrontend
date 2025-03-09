@@ -36,7 +36,7 @@ const Icons = <i className="bx bx-store-alt side-menu__icon"></i>;
 
 const Admin = <i className="bx bx-user side-menu__icon"></i>;
 
-const Referential = <i class="bx bx-library side-menu__icon"></i>;
+const Referential = <i className="bx bx-library side-menu__icon"></i>;
 
 const badge = (
   <span className="badge !bg-warning/10 !text-warning !py-[0.25rem] !px-[0.45rem] !text-[0.75em] ms-1">
@@ -257,8 +257,8 @@ export const MenuItems = [
     type: "sub",
     children: [
       {
-        path: "/project-management/programs",
-        title: "Programs",
+        path: "/admin/roles",
+        title: "Roles",
         type: "link",
         active: false,
         selected: false,

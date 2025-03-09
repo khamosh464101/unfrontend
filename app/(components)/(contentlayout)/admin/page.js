@@ -14,7 +14,7 @@ import Swal from "sweetalert2";
 import { setDelete } from "@/shared/redux/features/deleteSlice";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
-const Provinces = () => {
+const Roles = () => {
   const { data: session } = useSession();
   const Optionsdata = [
     { value: "Oldest", label: "Oledest" },
@@ -24,17 +24,17 @@ const Provinces = () => {
   ];
   const dispatch = useDispatch();
   const deleteItem = useSelector((state) => state.delete.item);
-  const [provinces, setProvinces] = useState({});
+  const [roles, setRoles] = useState({});
   const baseUrl = useSelector((state) => state.general.baseUrl);
-  const [url, setUrl] = useState(`${baseUrl}/api/provinces`);
+  const [url, setUrl] = useState(`${baseUrl}/api/roles`);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("Oldest");
   useEffect(() => {
     if (session?.access_token && !deleteItem) {
-      getProvinces();
+      getRoles();
     }
   }, [url, session, sortBy, deleteItem]);
-  const getProvinces = async () => {
+  const getRoles = async () => {
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -57,7 +57,7 @@ const Provinces = () => {
         });
       } else {
         const result = await res.json();
-        setProvinces(result);
+        setRoles(result);
       }
     } catch (error) {
       Swal.fire({
@@ -68,10 +68,10 @@ const Provinces = () => {
     }
   };
 
-  const deleteProvince = async (id) => {
+  const deleteRole = async (id) => {
     try {
       dispatch(setDelete());
-      const response = await fetch(`${baseUrl}/api/province/${id}`, {
+      const response = await fetch(`${baseUrl}/api/role/${id}/delete`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -109,12 +109,8 @@ const Provinces = () => {
   };
   return (
     <div>
-      <Seo title={"Provinces"} />
-      <Pageheader
-        currentpage="Provinces"
-        activepage="Tables"
-        mainpage="Provinces"
-      />
+      <Seo title={"Roles"} />
+      <Pageheader currentpage="Roles" activepage="Tables" mainpage="Roles" />
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12">
           <div className="box">
@@ -122,11 +118,11 @@ const Provinces = () => {
               <div className="flex justify-between gap-4">
                 <div className="flex flex-wrap gap-1 newproject">
                   <Link
-                    href="/referential/provinces/create"
+                    href="/admin/roles/create"
                     className="ti-btn ti-btn-primary-full me-2 !mb-0"
                   >
                     <i className="ri-add-line me-1 font-semibold align-middle"></i>
-                    New province
+                    New role
                   </Link>
                   <Select
                     name="colors"
@@ -143,12 +139,12 @@ const Provinces = () => {
                   <input
                     className="form-control me-2"
                     type="search"
-                    placeholder="Search province"
+                    placeholder="Search role"
                     aria-label="Search"
                     onChange={(e) => setSearch(e.target.value)}
                   />
                   <button
-                    onClick={getProvinces}
+                    onClick={getRoles}
                     className="ti-btn ti-btn-light !mb-0"
                     type="submit"
                   >
@@ -170,35 +166,27 @@ const Provinces = () => {
                           Name
                         </th>
                         <th scope="col" className="text-start">
-                          Name farsi
+                          Users
                         </th>
-                        <th scope="col" className="text-start">
-                          Name pashto
-                        </th>
-                        <th scope="col" className="text-start">
-                          Latitude
-                        </th>
-                        <th scope="col" className="text-start">
-                          Longitude
-                        </th>
-                        <th scope="col" className="text-start">
-                          Code
-                        </th>
+
                         <td scope="col" className="text-start">
                           Action
                         </td>
                       </tr>
                     </thead>
                     <tbody>
-                      {provinces?.data &&
-                        provinces.data.map((row, index) => (
+                      {roles?.data &&
+                        roles.data.map((row, index) => (
                           <tr className="border-b border-defaultborder">
                             <th scope="row">{row.name}</th>
-                            <td>{row.name_fa}</td>
-                            <td>{row.name_pa}</td>
-                            <td>{row.latitude}</td>
-                            <td>{row.longitude}</td>
-                            <td>{row.code}</td>
+                            <td>
+                              {row?.users &&
+                                row?.users?.map((row) => (
+                                  <div className="text-blue-500 border rounded-xl">
+                                    {row.name}
+                                  </div>
+                                ))}
+                            </td>
                             <td className="flex gap-2">
                               <button
                                 type="button"
@@ -213,7 +201,7 @@ const Provinces = () => {
                                     confirmButtonText: "Yes, delete it!",
                                   }).then((result) => {
                                     if (result.isConfirmed) {
-                                      deleteProvince(row.id);
+                                      deleteRole(row.id);
                                     }
                                   })
                                 }
@@ -223,7 +211,7 @@ const Provinces = () => {
                                 Delete
                               </button>
                               <Link
-                                href={`/referential/provinces/edit/${row.id}`}
+                                href={`/admin/roles/edit/${row.id}`}
                                 className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-success-full btn-wave"
                               >
                                 <i className="ri-edit-2-line align-middle me-2 inline-block"></i>
@@ -236,9 +224,9 @@ const Provinces = () => {
                   </table>
                   <nav aria-label="Page navigation">
                     <ul className="ti-pagination ltr:float-right rtl:float-left mb-4">
-                      {provinces.links &&
-                        provinces.links.length > 3 &&
-                        provinces.links.map((row, index) => (
+                      {roles.links &&
+                        roles.links.length > 3 &&
+                        roles.links.map((row, index) => (
                           <li
                             className={`page-item ${
                               row.active || row.url == null ? "disabled" : ""
@@ -265,4 +253,4 @@ const Provinces = () => {
   );
 };
 
-export default Provinces;
+export default Roles;
