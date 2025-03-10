@@ -123,6 +123,14 @@ export const MenuItems = [
         selected: false,
         dirchange: false,
       },
+      {
+        path: "/project-management/activities",
+        title: "Activities",
+        type: "link",
+        active: false,
+        selected: false,
+        dirchange: false,
+      },
 
       {
         title: "Nested",

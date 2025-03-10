@@ -343,7 +343,7 @@ const Createstaff = () => {
                     Staff Description :
                   </label>
                   <div id="project-descriptioin-editor">
-                    <SunEditor getSunEditorInstance={getSunEditorInstance} />
+                    <SunEditor  height="130px" getSunEditorInstance={getSunEditorInstance} />
                   </div>
                 </div>
 

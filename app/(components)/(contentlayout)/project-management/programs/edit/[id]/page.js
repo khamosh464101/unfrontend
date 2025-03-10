@@ -210,6 +210,7 @@ const Edit = ({ params }) => {
                   </label>
                   <div id="project-descriptioin-editor">
                     <SunEditor
+                       height="130px"
                       setContents={formData.description}
                       getSunEditorInstance={getSunEditorInstance}
                     />

@@ -2,7 +2,6 @@
 
 import Pageheader from "@/shared/layout-components/page-header/pageheader";
 import Seo from "@/shared/layout-components/seo/seo";
-import { getDonorsSelect2, getProgramsSelect2, getProjectStatuses, getStaffSelect2 } from "@/shared/redux/features/apiSlice";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -10,7 +9,6 @@ import React, { Fragment, useEffect, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 import { FilePond } from "react-filepond";
-import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
 const SunEditor = dynamic(() => import("suneditor-react"), {
@@ -20,12 +18,12 @@ const Editproject = ({ params }) => {
   const { id } = params;
   const { data: session, status, update } = useSession();
   const [loading, setLoading] = useState(false);
-  const [editorHeight, setEditorHeight] = useState("130px");
+  const [statuses, setStatuses] = useState([]);
+  const [programs, setPrograms] = useState([]);
+  const [donors, setDonors] = useState([]);
+  const [managers, setManagers] = useState([]);
   const [logo, setLogo] = useState(null);
   const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-    const dispatch = useDispatch();
-    const {projectStatuses:statuses, projectStatusesDefault: defaultStatus, programs, donors, staff: managers, isLoading, error } = useSelector((state) => state.api || {});
-   
   const input = {
     title: "",
     start_date: new Date(),
@@ -42,12 +40,10 @@ const Editproject = ({ params }) => {
   const [formData, setFormData] = useState(input);
   useEffect(() => {
     if (session?.access_token) {
-        dispatch(getProjectStatuses(session.access_token));
-           dispatch(getProgramsSelect2(session.access_token));
-           dispatch(getDonorsSelect2(session.access_token));
-           dispatch(getStaffSelect2({token: session.access_token, id: null}));
       getProject();
-
+      getStatus();
+      getPrograms();
+      getDonors();
     }
   }, [session]);
   const getProject = async () => {
@@ -69,7 +65,57 @@ const Editproject = ({ params }) => {
       });
     }
   };
-
+  const getStatus = async () => {
+    const res = await fetch(`${apiUrl}/api/projects-statuses/select2`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        Accept: "application/json",
+      },
+    });
+    const result = await res.json();
+    if (result.length > 0) {
+      let tmp = result.map((item) => {
+        return { value: item.id, label: item.title };
+      });
+      setStatuses(tmp);
+    }
+    console.log(result);
+  };
+  const getPrograms = async () => {
+    const res = await fetch(`${apiUrl}/api/programs/select2`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        Accept: "application/json",
+      },
+    });
+    const result = await res.json();
+    if (result.length > 0) {
+      let tmp = result.map((item) => {
+        return { value: item.id, label: item.title };
+      });
+      setPrograms(tmp);
+    }
+    console.log(result);
+  };
+  const getDonors = async () => {
+    const res = await fetch(`${apiUrl}/api/donors/select2`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        Accept: "application/json",
+      },
+    });
+    const result = await res.json();
+    if (result.length > 0) {
+      let tmp = result.map((item) => {
+        return { value: item.id, label: item.name };
+      });
+      setDonors(tmp);
+    }
+    console.log(result);
+  };
 
   // Handle change for text fields
   const handleChange = (name, value) => {
@@ -141,18 +187,18 @@ const Editproject = ({ params }) => {
 
   return (
     <Fragment>
-      <Seo title={"Create Project"} />
+      <Seo title={"Create Prject"} />
       <Pageheader
-        currentpage="Create Project"
-        activepage="Projects"
-        mainpage="Create Project"
+        currentpage="Create Prject"
+        activepage="Prjects"
+        mainpage="Create Prject"
       />
       <div className="grid grid-cols-12 gap-6">
         <div className="xl:col-span-12 col-span-12">
           <div className="box custom-box">
             <div className="box-header flex justify-between">
               <div className="box-title">
-                Create Project /
+                Create Prject /
                 <span className="text-red-500 font-light">
                   {" "}
                   * shows required
@@ -169,31 +215,20 @@ const Editproject = ({ params }) => {
               </div>
             </div>
             <div className="box-body">
-            {isLoading && <div className="flex justify-center items-center space-x-2">
-                  <i className="ri-loader-4-line animate-spin text-blue-500 text-3xl"></i>
-  
-                  <span className="text-lg text-blue-500">Loading...</span>
-                </div>}
-                {error && <div class="flex justify-center items-center space-x-2 bg-red-100 border border-red-500 text-red-700 p-4 rounded-md">
-                  <i class="ri-error-warning-line text-3xl"></i>
-                  <span class="text-lg">{error} || Something went wrong!</span>
-                </div>
-                }
               <form
                 onSubmit={handleSubmit}
-                id="createProject"
+                id="createPrject"
                 className="grid grid-cols-12 gap-4"
               >
-                
                 <div className="xl:col-span-4 col-span-12">
                   <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Project Title :
+                    <span className="text-red-500 mr-2">*</span> Prject Title :
                   </label>
                   <input
                     type="text"
                     className="form-control"
                     id="input-label"
-                    placeholder="Enter Project Title"
+                    placeholder="Enter Prject Title"
                     name="title"
                     required
                     value={formData.title}
@@ -233,13 +268,13 @@ const Editproject = ({ params }) => {
                 </div>
                 <div className="xl:col-span-4 col-span-12">
                   <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Project Code :
+                    <span className="text-red-500 mr-2">*</span> Prject Code :
                   </label>
                   <input
                     type="text"
                     className="form-control"
                     id="input-label"
-                    placeholder="Enter Project code"
+                    placeholder="Enter Prject code"
                     name="code"
                     required
                     value={formData.code}
@@ -285,7 +320,7 @@ const Editproject = ({ params }) => {
                     min={0}
                     className="form-control"
                     id="input-label"
-                    placeholder="Enter Project Budget in USD"
+                    placeholder="Enter Prject Budget in USD"
                     name="budget"
                     required
                     value={formData.budget}
@@ -345,7 +380,7 @@ const Editproject = ({ params }) => {
                     options={managers}
                     value={
                       formData.manager_id
-                        ? managers.find(
+                        ? manager.find(
                             (row) => row.value === formData.manager_id
                           )
                         : null
@@ -359,11 +394,10 @@ const Editproject = ({ params }) => {
 
                 <div className="xl:col-span-12 col-span-12">
                   <label htmlFor="text-area" className="form-label">
-                    Project Description :
+                    Prject Description :
                   </label>
-                  <div id="project-descriptioin-editor" >
+                  <div id="project-descriptioin-editor">
                     <SunEditor
-                      height="130px"
                       setContents={formData.description}
                       getSunEditorInstance={getSunEditorInstance}
                     />
@@ -439,13 +473,13 @@ const Editproject = ({ params }) => {
             <div className="box-footer">
               <button
                 type="submit"
-                form="createProject"
+                form="createPrject"
                 className="ti-btn ti-btn-primary btn-wave ms-auto float-right"
               >
                 {loading && (
                   <i class="las la-circle-notch animate-spin text-md"></i>
                 )}
-                Update Project
+                Create Prject
               </button>
             </div>
           </div>

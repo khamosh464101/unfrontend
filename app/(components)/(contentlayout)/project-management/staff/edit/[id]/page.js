@@ -28,7 +28,7 @@ const Editstaff = ({ params }) => {
     official_email: "",
     phone1: "",
     phone2: "",
-    photo: "",
+    photo: null,
     duty_station: "",
     date_of_joining: new Date(),
     staff_status_id: "",
@@ -102,7 +102,9 @@ const Editstaff = ({ params }) => {
     form.append("official_email", formData.official_email);
     form.append("phone1", formData.phone1);
     form.append("phone2", formData.phone2);
-    form.append("photo", formData.photo[0].file, formData.photo[0].file.name);
+    if(formData.photo) {
+      form.append("photo", formData.photo[0].file, formData.photo[0].file.name);
+    }
     form.append("duty_station", formData.duty_station);
     form.append(
       "date_of_joining",
@@ -376,6 +378,7 @@ const Editstaff = ({ params }) => {
                   </label>
                   <div id="project-descriptioin-editor">
                     <SunEditor
+                       height="130px"
                       setContents={formData.about}
                       getSunEditorInstance={getSunEditorInstance}
                     />
