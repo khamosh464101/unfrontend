@@ -5,7 +5,7 @@ import store from "@/shared/redux/store";
 import {  useState } from "react";
 
 export function Dark(actionfunction) {
-	const theme  = store.getState();
+	const theme  = store.getState().main;
 	actionfunction({
 		...theme,
 		"class": "dark",
@@ -22,7 +22,7 @@ export function Dark(actionfunction) {
 	localStorage.removeItem("darkBgRGB");
 }
 export function Light(actionfunction) {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"class": "light",
@@ -47,7 +47,7 @@ export function Light(actionfunction) {
 }
 
 export function Ltr(actionfunction) {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme, "dir": "ltr",
         
@@ -55,7 +55,7 @@ export function Ltr(actionfunction) {
 	localStorage.removeItem("ynexrtl");
 }
 export function Rtl(actionfunction) {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme, "dir": "rtl",
         
@@ -63,7 +63,7 @@ export function Rtl(actionfunction) {
 	localStorage.setItem("ynexrtl", "rtl");
 }
 export const Vertical = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataNavLayout": "vertical",
@@ -79,7 +79,7 @@ export const Vertical = (actionfunction) => {
 };
 
 export const HorizontalClick = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	setTimeout(() => {
 		document.querySelector(".main-content").click();
 	}, 100);
@@ -99,7 +99,7 @@ export const HorizontalClick = (actionfunction) => {
 	closeMenu();
 };
 export const Menuclick = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataNavStyle": "menu-click",
@@ -111,7 +111,7 @@ export const Menuclick = (actionfunction) => {
 
 };
 export const MenuHover = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataNavStyle": "menu-hover",
@@ -126,7 +126,7 @@ export const MenuHover = (actionfunction) => {
 };
 
 export const IconClick = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataVerticalStyle": "",
@@ -153,7 +153,7 @@ function closeMenu() {
 
 export const IconHover = (actionfunction) => {
 
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataNavStyle": "icon-hover",
@@ -173,7 +173,7 @@ export const IconHover = (actionfunction) => {
 };
 
 export const Regular = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataPageStyle": "regular",
@@ -184,7 +184,7 @@ export const Regular = (actionfunction) => {
 	localStorage.removeItem("ynexmodern");
 };
 export const Classic = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataPageStyle": "classic",
@@ -195,7 +195,7 @@ export const Classic = (actionfunction) => {
 	localStorage.removeItem("ynexmodern");
 };
 export const Modern = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataPageStyle": "modern",
@@ -206,7 +206,7 @@ export const Modern = (actionfunction) => {
 	localStorage.removeItem("ynexclassic");
 };
 export function Enable(actionfunction) {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"loader": "enable",
@@ -216,7 +216,7 @@ export function Enable(actionfunction) {
 	localStorage.removeItem("ynexloaderdisable");
 }
 export function Disable(actionfunction) {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"loader": "disable",
@@ -227,7 +227,7 @@ export function Disable(actionfunction) {
 }
 
 export const Fullwidth = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataWidth": "fullwidth",
@@ -238,7 +238,7 @@ export const Fullwidth = (actionfunction) => {
 
 };
 export const Boxed = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataWidth": "boxed",
@@ -248,7 +248,7 @@ export const Boxed = (actionfunction) => {
 	localStorage.removeItem("ynexfullwidth");
 };
 export const FixedMenu = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataMenuPosition": "fixed",
@@ -258,7 +258,7 @@ export const FixedMenu = (actionfunction) => {
 	localStorage.removeItem("ynexmenuscrollable");
 };
 export const scrollMenu = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataMenuPosition": "scrollable",
@@ -268,7 +268,7 @@ export const scrollMenu = (actionfunction) => {
 	localStorage.removeItem("ynexmenufixed");
 };
 export const Headerpostionfixed = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataHeaderPosition": "fixed",
@@ -278,7 +278,7 @@ export const Headerpostionfixed = (actionfunction) => {
 	localStorage.removeItem("ynexheaderscrollable");
 };
 export const Headerpostionscroll = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataHeaderPosition": "scrollable",
@@ -289,7 +289,7 @@ export const Headerpostionscroll = (actionfunction) => {
 };
 
 export const Defaultmenu = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataVerticalStyle": "overlay",
@@ -308,7 +308,7 @@ export const Defaultmenu = (actionfunction) => {
 };
 
 export const Closedmenu = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataNavLayout": "vertical",
@@ -332,7 +332,7 @@ function icontextCloseFn() {
 	}
 }
 export const iconText = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataNavLayout": "vertical",
@@ -357,7 +357,7 @@ export const iconText = (actionfunction) => {
 
 export const iconOverayFn = (actionfunction) => {
 	var icon = document.getElementById("switcher-icon-overlay");
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataNavLayout": "vertical",
@@ -400,7 +400,7 @@ function DetachedCloseFn() {
 	}
 }
 export const DetachedFn = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataNavLayout": "vertical",
@@ -425,7 +425,7 @@ export const DetachedFn = (actionfunction) => {
 	}, 300);
 };
 export const DoubletFn = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataNavLayout": "vertical",
@@ -439,7 +439,7 @@ export const DoubletFn = (actionfunction) => {
 
 	setTimeout(() => {
 		if (!document.querySelector(".main-menu .slide.active ul")) {
-			const theme = store.getState();
+			const theme = store.getState().main;
 			actionfunction(
 				{
 					...theme,
@@ -452,7 +452,7 @@ export const DoubletFn = (actionfunction) => {
 };
 
 export const colorMenu = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataMenuStyles": "color",
@@ -464,7 +464,7 @@ export const colorMenu = (actionfunction) => {
 };
 
 export const lightMenu = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataMenuStyles": "light",
@@ -475,7 +475,7 @@ export const lightMenu = (actionfunction) => {
 };
 
 export const darkMenu = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataMenuStyles": "dark",
@@ -486,7 +486,7 @@ export const darkMenu = (actionfunction) => {
 };
 
 export const gradientMenu = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataMenuStyles": "gradient",
@@ -496,7 +496,7 @@ export const gradientMenu = (actionfunction) => {
 	localStorage.removeItem("color");
 };
 export const transparentMenu = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataMenuStyles": "transparent",
@@ -507,7 +507,7 @@ export const transparentMenu = (actionfunction) => {
 };
 
 export const lightHeader = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataHeaderStyles": "light",
@@ -517,7 +517,7 @@ export const lightHeader = (actionfunction) => {
 	localStorage.removeItem("dark");
 };
 export const darkHeader = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataHeaderStyles": "dark",
@@ -527,7 +527,7 @@ export const darkHeader = (actionfunction) => {
 	localStorage.removeItem("light");
 };
 export const colorHeader = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataHeaderStyles": "color",
@@ -537,7 +537,7 @@ export const colorHeader = (actionfunction) => {
 	localStorage.setItem("ynexHeader", "color");
 };
 export const gradientHeader = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataHeaderStyles": "gradient",
@@ -547,7 +547,7 @@ export const gradientHeader = (actionfunction) => {
 	localStorage.setItem("ynexHeader", "gradient");
 };
 export const transparentHeader = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"dataHeaderStyles": "transparent",
@@ -558,7 +558,7 @@ export const transparentHeader = (actionfunction) => {
 };
 
 export const primaryColor1 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"colorPrimaryRgb": "58, 88, 146",
@@ -569,7 +569,7 @@ export const primaryColor1 = (actionfunction) => {
 	localStorage.setItem("primaryRGB1", "58 88 146");
 };
 export const primaryColor2 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"colorPrimaryRgb": "92, 144, 163",
@@ -580,7 +580,7 @@ export const primaryColor2 = (actionfunction) => {
 	localStorage.setItem("primaryRGB1", "92 144 163");
 };
 export const primaryColor3 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"colorPrimaryRgb": "161, 90, 223",
@@ -591,7 +591,7 @@ export const primaryColor3 = (actionfunction) => {
 	localStorage.setItem("primaryRGB1", "161 90 223");
 };
 export const primaryColor4 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"colorPrimaryRgb": "78, 172, 76",
@@ -602,7 +602,7 @@ export const primaryColor4 = (actionfunction) => {
 	localStorage.setItem("primaryRGB1", "78 172 76");
 };
 export const primaryColor5 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"colorPrimaryRgb": "223, 90, 90",
@@ -614,7 +614,7 @@ export const primaryColor5 = (actionfunction) => {
 };
 
 export const backgroundColor1 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"darkBg": "34 44 110",
@@ -635,7 +635,7 @@ export const backgroundColor1 = (actionfunction) => {
 
 };
 export const backgroundColor2 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"darkBg": "22 92 129",
@@ -655,7 +655,7 @@ export const backgroundColor2 = (actionfunction) => {
 	localStorage.setItem("ynexHeader", "dark");
 };
 export const backgroundColor3 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"darkBg": "104 51 149",
@@ -675,7 +675,7 @@ export const backgroundColor3 = (actionfunction) => {
 	localStorage.setItem("ynexHeader", "dark");
 };
 export const backgroundColor4 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"darkBg": "24 101 51",
@@ -695,7 +695,7 @@ export const backgroundColor4 = (actionfunction) => {
 	localStorage.setItem("ynexHeader", "dark");
 };
 export const backgroundColor5 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"darkBg": "120 66 20",
@@ -734,7 +734,7 @@ function hexToRgb(hex) {
 //themeprimarycolor
 const Themeprimarycolor = ({ actionfunction }) => {
    
-	const theme = store.getState();
+	const theme = store.getState().main;
 	const [state, updateState] = useState("#FFFFFF");
 	const handleInput = (e) => {
 		let { r, g, b } = hexToRgb(e.target.value);
@@ -758,7 +758,7 @@ export default Themeprimarycolor;
 //themeBackground
 export const Themebackgroundcolor = ({ actionfunction }) => {
    
-	const theme = store.getState();
+	const theme = store.getState().main;
 	const [state, updateState] = useState("#FFFFFF");
 	const handleInput = (e) => {
 		let { r, g, b } = hexToRgb(e.target.value);
@@ -789,7 +789,7 @@ export const Themebackgroundcolor = ({ actionfunction }) => {
 };
 
 export const bgImage1 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"bgImg": "bgimg1",
@@ -798,7 +798,7 @@ export const bgImage1 = (actionfunction) => {
 	localStorage.setItem("bgimage1", "bgimg1");
 };
 export const bgImage2 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"bgImg": "bgimg2",
@@ -807,7 +807,7 @@ export const bgImage2 = (actionfunction) => {
 	localStorage.setItem("bgimage2", "bgimg2");
 };
 export const bgImage3 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"bgImg": "bgimg3",
@@ -816,7 +816,7 @@ export const bgImage3 = (actionfunction) => {
 	localStorage.setItem("bgimage3", "bgimg3");
 };
 export const bgImage4 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"bgImg": "bgimg4",
@@ -825,7 +825,7 @@ export const bgImage4 = (actionfunction) => {
 	localStorage.setItem("bgimage4", "bgimg4");
 };
 export const bgImage5 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"bgImg": "bgimg5",
@@ -834,7 +834,7 @@ export const bgImage5 = (actionfunction) => {
 	localStorage.setItem("bgimage5", "bgimg5");
 };
 export const Reset = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	Vertical(actionfunction);
 	actionfunction({
 		...theme,
@@ -1071,7 +1071,7 @@ export const LocalStorageBackup = (actionfunction, setpageloading) => {
 
 	//Theme Primary:
 	if (localStorage.dynamiccolor) {
-		const theme = store.getState();
+		const theme = store.getState().main;
 		actionfunction({
 			...theme,
 			"colorPrimaryRgb": localStorage.dynamiccolor,
@@ -1083,7 +1083,7 @@ export const LocalStorageBackup = (actionfunction, setpageloading) => {
 
 	if (localStorage.bodyBgRGB) {
 		let updateddarkBg = `${Number(localStorage.bodyBgRGB.split(" ")[0]) + 14} ${Number(localStorage.bodyBgRGB.split(" ")[1]) + 14} ${Number(localStorage.bodyBgRGB.split(" ")[2]) + 14}`;
-		const theme = store.getState();
+		const theme = store.getState().main;
 		actionfunction({
 			...theme,
 			"bodyBg": localStorage.bodyBgRGB,

@@ -224,6 +224,7 @@ export default function reducer(state = initialState, action) {
   
 	case "ThemeChanger":
 		state = payload;
+
 		return state;
 		break;
         

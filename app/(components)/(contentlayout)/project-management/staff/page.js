@@ -172,7 +172,7 @@ const Team = () => {
               {staff?.data &&
                 staff.data.map((row, index) => (
                   <div
-                    className="xxl:col-span-3 xl:col-span-3 lg:col-span-4 md:col-span-6 sm:col-span-12 col-span-12"
+                    className="xxl:col-span-4 xl:col-span-4 lg:col-span-4 md:col-span-6 sm:col-span-12 col-span-12"
                     key={Math.random()}
                   >
                     <div className="box team-member-card">

@@ -73,7 +73,7 @@ function Layout({ children, local_varaiable, ThemeChanger }) {
 }
 
 const mapStateToProps = (state) => ({
-	local_varaiable: state,
+	local_varaiable: state.main,
 });
 
 export default connect(mapStateToProps, { ThemeChanger })(Layout);

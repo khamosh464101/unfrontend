@@ -1,5 +1,7 @@
 "use client";
 import Create from "@/components/attachments/Create";
+import Attachment from "@/components/projects/Attachment";
+import Log from "@/components/programs/Log";
 import { getFileIcon } from "@/lib/getFileIcon";
 import stringToDate from "@/lib/stringToData";
 import Pageheader from "@/shared/layout-components/page-header/pageheader";
@@ -8,7 +10,9 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { Fragment, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
+import Project from "@/components/programs/Project";
 
 const Programoverview = ({ params }) => {
   const { data: session } = useSession();
@@ -17,15 +21,22 @@ const Programoverview = ({ params }) => {
   const [projects, setProjects] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [createOpen, setCreateOpen] = useState(false);
-  const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const baseUrl = useSelector((state) => state.general.baseUrl);
   const router = useRouter();
+   const menus = [
+      { name: "Log History", icon: "ri-chat-history-line" },
+      { name: "Projects", icon: "ri-archive-stack-line" },
+      // { name: "Members", icon: "ri-group-line" },
+      { name: "Attachements", icon: "ri-attachment-line" },
+    ]
+    const [menu, setMenu] = useState(menus[0]);
   useEffect(() => {
     if (session?.access_token) {
       getProgram();
     }
   }, [session, id]);
   const getProgram = async () => {
-    const res = await fetch(`${apiUrl}/api/program/${id}/edit`, {
+    const res = await fetch(`${baseUrl}/api/program/${id}/edit`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${session.access_token}`,
@@ -43,7 +54,7 @@ const Programoverview = ({ params }) => {
 
   const deleteDocument = async (did) => {
     try {
-      const res = await fetch(`${apiUrl}/api/document/${did}`, {
+      const res = await fetch(`${baseUrl}/api/document/${did}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -82,7 +93,7 @@ const Programoverview = ({ params }) => {
 
   const deleteProgram = async () => {
     try {
-      const response = await fetch(`${apiUrl}/api/program/${id}`, {
+      const response = await fetch(`${baseUrl}/api/program/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -227,185 +238,37 @@ const Programoverview = ({ params }) => {
             </div>
           </div>
           <div className="box custom-box">
-            <div className="box-header">
-              <div className="box-title">History Log</div>
+            <div className="box-header flex flex-row justify-between">
+              {menus.map((row, index) => (
+                <button
+                  onClick={() => setMenu(menus[index])}
+                  className={`${
+                    row.name == menu.name
+                      ? "text-blue-500 border-b-2 border-blue-500"
+                      : "hover:border-b-2 hover:border-blue-500 hover:text-blue-500"
+                  } px-4 py-2`}
+                >
+                  <i className={`${row.icon} mr-2`}></i>
+                  {row.name}
+                </button>
+              ))}
             </div>
             <div className="box-body">
-              <ul className="list-unstyled profile-timeline">
-                {program?.logs?.map((row, index) => (
-                  <li key={index}>
-                    <div>
-                      <span className="avatar avatar-sm  profile-timeline-avatar">
-                        <img
-                          src="../../../assets/images/faces/11.jpg"
-                          alt=""
-                          className="!rounded-full"
-                        />
-                      </span>
-                      <p className="text-[#8c9097] dark:text-white/50 mb-2">
-                        <span className="text-default">{row.description}</span>.
-                        <span className="float-end text-[0.6875rem] text-[#8c9097] dark:text-white/50">
-                          {stringToDate(row.created_at)}
-                        </span>
-                      </p>
-                      {/* <p className="text-[#8c9097] dark:text-white/50 mb-0">
-               
-                      </p> */}
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              {menu.name == "Log History" && <Log program={program} />}
+              {menu.name == "Projects" && <Project projects={projects} />}
+              {/* {menu.name == "Members" && <Member project={project} setStaff={setStaff} staff={staff} />}  */}
+              {menu.name == "Attachements" && (
+                <Attachment
+                  type={"Program"}
+                  id={program.id}
+                  documents={documents}
+                  setDocuments={setDocuments}
+                />
+              )}
             </div>
           </div>
         </div>
-        <div className="xl:col-span-3 col-span-12">
-          <div className="box custom-box">
-            <div className="box-header">
-              <div className="box-title">Program Projects</div>
-            </div>
-            <div className="box-body !p-0">
-              <div className="table-responsive">
-                <table className="table whitespace-nowrap min-w-full">
-                  <thead>
-                    <tr>
-                      <th scope="row" className="text-start">
-                        Title
-                      </th>
-
-                      <th scope="row" className="text-start">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {projects?.map((row, index) => (
-                      <tr className="border border-defaultborder">
-                        <td>
-                          <div className="flex items-center">
-                            <div className="me-2 leading-none">
-                              <span className="avatar avatar-sm !rounded-full">
-                                <img src={row.logo} alt={row.title} />
-                              </span>
-                            </div>
-                            <div className="font-semibold w-48 text-truncate">
-                              {row.title}
-                            </div>
-                          </div>
-                        </td>
-
-                        <td>
-                          <div className="inline-flex">
-                            <Link
-                              href={`/project-management/projects/${row.id}`}
-                              className="ti-btn ti-btn-sm ti-btn-info me-[0.375rem]"
-                            >
-                              <i className="ri-eye-line"></i>
-                            </Link>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <div className="box custom-box overflow-hidden">
-            <div className="box-header justify-between">
-              <div className="box-title">Program Documents</div>
-              <button
-                onClick={() => setCreateOpen(true)}
-                className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-light btn-wave"
-              >
-                <i className="ri-add-line align-middle me-1 font-semibold"></i>
-                Add file
-              </button>
-            </div>
-            <div className="box-body !p-0">
-              <ul className="list-group list-group-flush">
-                {documents?.map((row, index) => (
-                  <li key={index} className="list-group-item !border-t-0">
-                    <div className="flex items-center">
-                      <div className="me-2">
-                        <span className="avatar !rounded-full p-2">
-                          <i
-                            className={`${getFileIcon(row.path)}`}
-                            style={{ fontSize: "30px" }}
-                          ></i>
-                          {/* <img
-                            src="../../../assets/images/media/file-manager/1.png"
-                            alt=""
-                          /> */}
-                        </span>
-                      </div>
-                      <div className="flex-grow">
-                        <Link href="#!" scroll={false}>
-                          <span className="block font-semibold w-48 text-truncate">
-                            {row.title}
-                          </span>
-                        </Link>
-                        <span className="block text-[#8c9097] dark:text-white/50 text-[0.75rem] font-normal">
-                          {row.size > 1
-                            ? `${row.size}MB`
-                            : `${row.size * 1000}KB`}
-                        </span>
-                      </div>
-                      <div className="inline-flex">
-                        <a
-                          href={row.path}
-                          download={row.path}
-                          className="ti-btn ti-btn-sm ti-btn-info me-[0.375rem]"
-                        >
-                          <i className="ri-download-line"></i>
-                        </a>
-                        {/* <button
-                          aria-label="button"
-                          type="button"
-                          className="ti-btn ti-btn-sm ti-btn-info me-[0.375rem]"
-                        >
-                          <i className="ri-edit-line"></i>
-                        </button> */}
-                        <button
-                          onClick={() =>
-                            Swal.fire({
-                              title: "Are you sure?",
-                              text: "You won't be able to revert this!",
-                              icon: "warning",
-                              showCancelButton: true,
-                              confirmButtonColor: "#3085d6",
-                              cancelButtonColor: "#d33",
-                              confirmButtonText: "Yes, delete it!",
-                            }).then((result) => {
-                              if (result.isConfirmed) {
-                                deleteDocument(row.id);
-                              }
-                            })
-                          }
-                          aria-label="button"
-                          type="button"
-                          className="ti-btn ti-btn-sm ti-btn-danger"
-                        >
-                          <i className="ri-delete-bin-line"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {createOpen && (
-            <Create
-              type="Program"
-              id={id}
-              createOpen={createOpen}
-              setCreateOpen={setCreateOpen}
-              setDocuments={setDocuments}
-            />
-          )}
-        </div>
+    
       </div>
     </Fragment>
   );

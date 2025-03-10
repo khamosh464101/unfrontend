@@ -4,10 +4,10 @@ import { FilePond, registerPlugin } from "react-filepond";
 import FilePondPluginFileValidateSize from "filepond-plugin-file-validate-size";
 import { useSelector } from "react-redux";
 
-function Create({ type, id, createOpen, setCreateOpen, setDocuments }) {
+function Create({ staffId }) {
   const { data: session } = useSession();
   const baseUrl = useSelector((state) => state.general.baseUrl);
-  const [files, setFiles] = useState([]);
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [imgId, setImgId] = useState("");

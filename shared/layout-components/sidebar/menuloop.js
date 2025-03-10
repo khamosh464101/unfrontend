@@ -70,7 +70,7 @@ function Menuloop({ local_varaiable ,MenuItems, toggleSidemenu, level , HoverTog
 }
 
 const mapStateToProps = (state) => ({
-	local_varaiable: state
+	local_varaiable: state.main
 });
 
 export default connect(mapStateToProps, { ThemeChanger })(Menuloop);

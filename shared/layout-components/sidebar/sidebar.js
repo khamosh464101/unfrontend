@@ -32,7 +32,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger }) => {
     const mainContent = document.querySelector(".main-content");
     if (window.innerWidth <= 992) {
       if (mainContent) {
-        const theme = store.getState();
+        const theme = store.getState().main;
         ThemeChanger({ ...theme, dataToggled: "close" });
       } else if (
         document.documentElement.getAttribute("data-nav-layout") == "horizontal"
@@ -51,7 +51,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger }) => {
   const pathname = usePathname();
 
   function Onhover() {
-    const theme = store.getState();
+    const theme = store.getState().main;
     if (
       (theme.dataToggled == "icon-overlay-close" ||
         theme.dataToggled == "detached-close") &&
@@ -61,7 +61,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger }) => {
     }
   }
   function Outhover() {
-    const theme = store.getState();
+    const theme = store.getState().main;
     if (
       (theme.dataToggled == "icon-overlay-close" ||
         theme.dataToggled == "detached-close") &&
@@ -72,7 +72,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger }) => {
   }
 
   function menuClose() {
-    const theme = store.getState();
+    const theme = store.getState().main;
     if (window.innerWidth <= 992) {
       ThemeChanger({ ...theme, dataToggled: "close" });
     }
@@ -103,7 +103,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger }) => {
       WindowPreSize.shift();
     }
 
-    const theme = store.getState();
+    const theme = store.getState().main;
     const currentWidth = WindowPreSize[WindowPreSize.length - 1];
     const prevWidth = WindowPreSize[WindowPreSize.length - 2];
 
@@ -362,7 +362,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger }) => {
   let hasParentLevel = 0;
 
   function setSubmenu(event, targetObject, MenuItems = menuitems) {
-    const theme = store.getState();
+    const theme = store.getState().main;
     if (
       (window.screen.availWidth <= 992 || theme.dataNavStyle != "icon-hover") &&
       (window.screen.availWidth <= 992 || theme.dataNavStyle != "menu-hover")
@@ -410,7 +410,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger }) => {
 
   function setMenuAncestorsActive(targetObject) {
     const parent = getParentObject(menuitems, targetObject);
-    const theme = store.getState();
+    const theme = store.getState().main;
     if (parent) {
       if (hasParentLevel > 2) {
         hasParent = true;
@@ -481,7 +481,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger }) => {
   }, [pathname]);
 
   function toggleSidemenu(event, targetObject, MenuItems = menuitems) {
-    const theme = store.getState();
+    const theme = store.getState().main;
     let element = event.target;
     if (
       (theme.dataNavStyle != "icon-hover" &&
@@ -578,7 +578,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger }) => {
   }
 
   function setAncestorsActive(MenuItems, targetObject) {
-    const theme = store.getState();
+    const theme = store.getState().main;
     const parent = findParent(MenuItems, targetObject);
     if (parent) {
       parent.active = true;
@@ -628,7 +628,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger }) => {
   };
 
   function HoverToggleInnerMenuFn(event, item) {
-    const theme = store.getState();
+    const theme = store.getState().main;
     let element = event.target;
     if (
       element &&
@@ -917,7 +917,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger }) => {
 };
 
 const mapStateToProps = (state) => ({
-  local_varaiable: state,
+  local_varaiable: state.main,
 });
 
 export default connect(mapStateToProps, { ThemeChanger })(Sidebar);

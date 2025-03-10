@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 const Select = dynamic(() => import("react-select"), { ssr: false });
+import Link from "next/link";
 import { FilePond } from "react-filepond";
 import Swal from "sweetalert2";
 
@@ -157,13 +158,22 @@ const Editstaff = ({ params }) => {
       <div className="grid grid-cols-12 gap-6">
         <div className="xl:col-span-12 col-span-12">
           <div className="box custom-box">
-            <div className="box-header">
+            <div className="box-header flex justify-between">
               <div className="box-title">
                 Edit team member /
                 <span className="text-red-500 font-light">
                   {" "}
                   * shows required
                 </span>
+              </div>
+              <div className="flex gap-2">
+                <Link
+                  href={`/project-management/staff/${id}`}
+                  className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-secondary-full btn-wave"
+                >
+                  <i className="ri-eye-line align-middle me-1 font-semibold"></i>
+                  View 
+                </Link>
               </div>
             </div>
             <div className="box-body">

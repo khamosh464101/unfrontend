@@ -3,7 +3,7 @@ import store from "@/shared/redux/store";
 import {useState } from "react";
 
 export function Dark(actionfunction) {
-	const theme  = store.getState();
+	const theme  = store.getState().main;
 	actionfunction({
 		...theme,
 		"class": "dark",
@@ -14,7 +14,7 @@ export function Dark(actionfunction) {
 	localStorage.removeItem("ynexlighttheme");
 }
 export function Light(actionfunction) {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"class": "light",
@@ -35,14 +35,14 @@ export function Light(actionfunction) {
 }
 
 export function Ltr(actionfunction) {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme, "dir": "ltr",
 	});
 	localStorage.removeItem("ynexrtl");
 }
 export function Rtl(actionfunction) {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme, "dir": "rtl",
 	});
@@ -50,7 +50,7 @@ export function Rtl(actionfunction) {
 }
 
 export const primaryColor1 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"colorPrimaryRgb": "58, 88, 146",
@@ -61,7 +61,7 @@ export const primaryColor1 = (actionfunction) => {
 	localStorage.setItem("primaryRGB1", "58 88 146");
 };
 export const primaryColor2 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"colorPrimaryRgb": "92, 144, 163",
@@ -72,7 +72,7 @@ export const primaryColor2 = (actionfunction) => {
 	localStorage.setItem("primaryRGB1", "92 144 163");
 };
 export const primaryColor3 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"colorPrimaryRgb": "161, 90, 223",
@@ -83,7 +83,7 @@ export const primaryColor3 = (actionfunction) => {
 	localStorage.setItem("primaryRGB1", "161 90 223");
 };
 export const primaryColor4 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"colorPrimaryRgb": "78, 172, 76",
@@ -94,7 +94,7 @@ export const primaryColor4 = (actionfunction) => {
 	localStorage.setItem("primaryRGB1", "78 172 76");
 };
 export const primaryColor5 = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		"colorPrimaryRgb": "223, 90, 90",
@@ -145,7 +145,7 @@ const Themeprimarycolor = ({ theme, actionfunction }) => {
 export default Themeprimarycolor;
 
 export const LandingpageReset = (actionfunction) => {
-	const theme = store.getState();
+	const theme = store.getState().main;
 	actionfunction({
 		...theme,
 		lang: "en",

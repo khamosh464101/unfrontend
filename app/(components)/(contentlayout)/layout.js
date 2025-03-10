@@ -14,7 +14,7 @@ const Layout = ({ children }) => {
   const [MyclassName, setMyClass] = useState("");
 
   const Bodyclickk = () => {
-    const theme = store.getState();
+    const theme = store.getState().main;
     if (localStorage.getItem("ynexverticalstyles") == "icontext") {
       setMyClass("");
     }
@@ -54,7 +54,7 @@ const Layout = ({ children }) => {
 };
 
 const mapStateToProps = (state) => ({
-  local_varaiable: state,
+  local_varaiable: state.main,
 });
 
 export default connect(mapStateToProps, { ThemeChanger })(Layout);

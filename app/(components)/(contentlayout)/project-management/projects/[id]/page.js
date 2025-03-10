@@ -23,7 +23,7 @@ const Projectoverview = ({ params }) => {
   const [gozars, setGozars] = useState([]);
   const baseUrl = useSelector((state) => state.general.baseUrl);
   const menus = [
-    { name: "Log", icon: "ri-chat-history-line" },
+    { name: "Log History", icon: "ri-chat-history-line" },
     { name: "Location", icon: "ri-map-pin-2-line" },
     { name: "Members", icon: "ri-group-line" },
     { name: "Attachements", icon: "ri-attachment-line" },
@@ -219,7 +219,7 @@ const Projectoverview = ({ params }) => {
               ))}
             </div>
             <div className="box-body">
-              {menu.name == "Log" && <Log project={project} />}
+              {menu.name == "Log History" && <Log project={project} />}
               {menu.name == "Location" && <Location project={project} gozars={gozars} setGozars={setGozars} />}
               {menu.name == "Members" && <Member project={project} setStaff={setStaff} staff={staff} />}
               {menu.name == "Attachements" && (

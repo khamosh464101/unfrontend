@@ -202,12 +202,12 @@ const Header = ({ local_varaiable, ThemeChanger }) => {
   // }, [local_varaiable]);
 
   // function menuClose() {
-  //   const theme = store.getState();
+  //   const theme = store.getState().main;
   //   ThemeChanger({ ...theme, "dataToggled": "close" });
   // }
 
   function menuClose() {
-    const theme = store.getState();
+    const theme = store.getState().main;
     if (window.innerWidth <= 992) {
       ThemeChanger({ ...theme, dataToggled: "close" });
     }
@@ -235,7 +235,7 @@ const Header = ({ local_varaiable, ThemeChanger }) => {
   // }
 
   const toggleSidebar = () => {
-    const theme = store.getState();
+    const theme = store.getState().main;
     let sidemenuType = theme.dataNavLayout;
     if (window.innerWidth >= 992) {
       if (sidemenuType === "vertical") {
@@ -386,6 +386,10 @@ const Header = ({ local_varaiable, ThemeChanger }) => {
   //Dark Model
 
   const ToggleDark = () => {
+    localStorage.setItem("ynexdarktheme", "dark");
+      localStorage.removeItem("ynexlighttheme");
+      localStorage.removeItem("ynexMenu");
+      localStorage.removeItem("ynexHeader");
     ThemeChanger({
       ...local_varaiable,
       class: local_varaiable.class == "dark" ? "light" : "dark",
@@ -397,7 +401,7 @@ const Header = ({ local_varaiable, ThemeChanger }) => {
             : "dark"
           : "dark",
     });
-    const theme = store.getState();
+    const theme = store.getState().main;
 
     if (theme.class != "dark") {
       ThemeChanger({
@@ -1285,6 +1289,6 @@ const Header = ({ local_varaiable, ThemeChanger }) => {
 };
 
 const mapStateToProps = (state) => ({
-  local_varaiable: state,
+  local_varaiable: state.main,
 });
 export default connect(mapStateToProps, { ThemeChanger })(Header);

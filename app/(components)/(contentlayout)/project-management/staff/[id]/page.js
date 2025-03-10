@@ -1,5 +1,7 @@
 "use client";
 import Create from "@/components/attachments/Create";
+import Attachment from "@/components/projects/Attachment";
+import Log from "@/components/staff/Log";
 import { getFileIcon } from "@/lib/getFileIcon";
 import {
   Followersdata,
@@ -273,87 +275,6 @@ const Staffview = ({ params }) => {
                   </div>
                 </div>
               </div>
-
-              {createOpen && (
-                <Create
-                  type="Staff"
-                  id={id}
-                  createOpen={createOpen}
-                  setCreateOpen={setCreateOpen}
-                  setDocuments={setDocuments}
-                />
-              )}
-              <div className="p-6">
-                <p className="text-[.9375rem] mb-2 me-6 font-semibold flex flex-row justify-between">
-                  <span>Documents :</span>
-                  <button
-                    onClick={() => setCreateOpen(true)}
-                    className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-light btn-wave"
-                  >
-                    <i className="ri-add-line align-middle me-1 font-semibold"></i>
-                    Add file
-                  </button>
-                </p>
-                <ul className="list-group">
-                  {documents?.map((row, index) => (
-                    <li key={index} className="list-group-item">
-                      <div className="flex items-center">
-                        <div className="me-2">
-                          <span className="avatar !rounded-full p-2">
-                            <i
-                              className={`${getFileIcon(row.path)}`}
-                              style={{ fontSize: "30px" }}
-                            ></i>
-                          </span>
-                        </div>
-                        <div className="flex-grow">
-                          <Link href="#!" scroll={false}>
-                            <span className="block font-semibold w-48 text-truncate">
-                              {row.title}
-                            </span>
-                          </Link>
-                          <span className="block text-[#8c9097] dark:text-white/50 text-[0.75rem] font-normal">
-                            {row.size > 1
-                              ? `${row.size}MB`
-                              : `${row.size * 1000}KB`}
-                          </span>
-                        </div>
-                        <div className="inline-flex">
-                          <a
-                            href={row.path}
-                            download={row.path}
-                            className="ti-btn ti-btn-sm ti-btn-info me-[0.375rem]"
-                          >
-                            <i className="ri-download-line"></i>
-                          </a>
-                          <button
-                            onClick={() =>
-                              Swal.fire({
-                                title: "Are you sure?",
-                                text: "You won't be able to revert this!",
-                                icon: "warning",
-                                showCancelButton: true,
-                                confirmButtonColor: "#3085d6",
-                                cancelButtonColor: "#d33",
-                                confirmButtonText: "Yes, delete it!",
-                              }).then((result) => {
-                                if (result.isConfirmed) {
-                                  deleteDocument(row.id);
-                                }
-                              })
-                            }
-                            aria-label="button"
-                            type="button"
-                            className="ti-btn ti-btn-sm ti-btn-danger"
-                          >
-                            <i className="ri-delete-bin-line"></i>
-                          </button>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
             </div>
           </div>
         </div>
@@ -389,17 +310,7 @@ const Staffview = ({ params }) => {
                         <i className="ri-bill-line me-1 align-middle inline-block"></i>
                         Posts
                       </Link>
-                      <Link
-                        className="w-full sm:w-auto flex hs-tab-active:font-semibold  hs-tab-active:text-white hs-tab-active:bg-primary rounded-md  py-2 px-4 text-primary text-sm"
-                        href="#!"
-                        scroll={false}
-                        id="followers-tab"
-                        data-hs-tab="#followers-tab-pane"
-                        aria-controls="followers-tab-pane"
-                      >
-                        <i className="ri-money-dollar-box-line me-1 align-middle inline-block"></i>
-                        Friends
-                      </Link>
+                      
                       <Link
                         className="w-full sm:w-auto flex hs-tab-active:font-semibold  hs-tab-active:text-white hs-tab-active:bg-primary rounded-md  py-2 px-4 text-primary text-sm"
                         href="#!"
@@ -408,8 +319,19 @@ const Staffview = ({ params }) => {
                         data-hs-tab="#gallery-tab-pane"
                         aria-controls="gallery-tab-pane"
                       >
-                        <i className="ri-exchange-box-line me-1 align-middle inline-block"></i>
-                        Gallery
+                        <i className="ri-attachment-line me-1 align-middle inline-block"></i>
+                        Attachements
+                      </Link>
+                      <Link
+                        className="w-full sm:w-auto flex hs-tab-active:font-semibold  hs-tab-active:text-white hs-tab-active:bg-primary rounded-md  py-2 px-4 text-primary text-sm"
+                        href="#!"
+                        scroll={false}
+                        id="followers-tab"
+                        data-hs-tab="#followers-tab-pane"
+                        aria-controls="followers-tab-pane"
+                      >
+                        <i className="ri-chat-history-line me-1 align-middle inline-block"></i>
+                        Log History
                       </Link>
                     </nav>
                     <div>
@@ -1533,63 +1455,7 @@ const Staffview = ({ params }) => {
                         role="tabpanel"
                         aria-labelledby="followers-tab"
                       >
-                        <div className="grid grid-cols-12 sm:gap-x-6">
-                          {Friendsdata.map((idx) => (
-                            <div
-                              className="xxl:col-span-4 xl:col-span-4 lg:col-span-6 md:col-span-6 col-span-12"
-                              key={Math.random()}
-                            >
-                              <div className="box !shadow-none border dark:border-defaultborder/10">
-                                <div className="box-body p-6">
-                                  <div className="text-center">
-                                    <span className="avatar avatar-xl avatar-rounded">
-                                      <img src={idx.src} alt="" />
-                                    </span>
-                                    <div className="mt-2">
-                                      <p className="mb-0 font-semibold">
-                                        {idx.name}
-                                      </p>
-                                      <p className="text-[0.75rem] opacity-[0.7] mb-1 text-[#8c9097] dark:text-white/50">
-                                        {idx.mail}
-                                      </p>
-                                      <span
-                                        className={`badge bg-${idx.color}/10 rounded-full text-${idx.color}`}
-                                      >
-                                        {idx.badge}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="box-footer text-center">
-                                  <div className="btn-list">
-                                    <button
-                                      type="button"
-                                      className="ti-btn btn-sm !py-1 !px-2 !text-[0.75rem] me-1 ti-btn-light"
-                                    >
-                                      Block
-                                    </button>
-                                    <button
-                                      type="button"
-                                      className="ti-btn btn-sm !py-1 !px-2 !text-[0.75rem] text-white bg-primary"
-                                    >
-                                      Unfollow
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                          <div className="col-span-12">
-                            <div className="text-center !mt-4">
-                              <button
-                                type="button"
-                                className="ti-btn ti-btn-primary !font-medium btn-wave"
-                              >
-                                Show All
-                              </button>
-                            </div>
-                          </div>
-                        </div>
+                        <Log member={member} />
                       </div>
                       <div
                         className="tab-pane fade !p-0 !border-0 hidden"
@@ -1597,19 +1463,12 @@ const Staffview = ({ params }) => {
                         role="tabpanel"
                         aria-labelledby="gallery-tab"
                       >
-                        <div className="grid grid-cols-12 sm:gap-x-6 gap-y-6">
-                          <LightboxGallery />
-                          <div className="col-span-12">
-                            <div className="text-center mt-6">
-                              <button
-                                type="button"
-                                className="ti-btn ti-btn-primary !font-medium"
-                              >
-                                Show All
-                              </button>
-                            </div>
-                          </div>
-                        </div>
+                        <Attachment
+                          type={"Staff"}
+                          id={member.id}
+                          documents={documents}
+                          setDocuments={setDocuments}
+                        />
                       </div>
                     </div>
                   </div>
