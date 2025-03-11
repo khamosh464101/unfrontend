@@ -2,7 +2,12 @@
 
 import Pageheader from "@/shared/layout-components/page-header/pageheader";
 import Seo from "@/shared/layout-components/seo/seo";
-import { getActivityStatuses, getActivityTypes, getProjectsSelect2, getStaffSelect2 } from "@/shared/redux/features/apiSlice";
+import {
+  getActivityStatuses,
+  getActivityTypes,
+  getProjectsSelect2,
+  getStaffSelect2,
+} from "@/shared/redux/features/apiSlice";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import React, { Fragment, useEffect, useRef, useState } from "react";
@@ -16,12 +21,21 @@ const SunEditor = dynamic(() => import("suneditor-react"), {
   ssr: false,
 });
 const Createactivity = () => {
-  const { data: session} = useSession();
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
 
   const [project, setProject] = useState(null);
   const dispatch = useDispatch();
-  const {activityStatuses: statuses, activityStatusesDefault:status, activityTypes:types, activityTypesDefault: type, projects,staff: managers,  error, isLoading} = useSelector((state) => state.api);
+  const {
+    activityStatuses: statuses,
+    activityStatusesDefault: status,
+    activityTypes: types,
+    activityTypesDefault: type,
+    projects,
+    staff: managers,
+    error,
+    isLoading,
+  } = useSelector((state) => state.api);
   const input = {
     title: "",
     starts_at: new Date(),
@@ -36,10 +50,10 @@ const Createactivity = () => {
   const [formData, setFormData] = useState(input);
   const baseUrl = useSelector((state) => state.general.baseUrl);
   useEffect(() => {
-    handleChange('activity_status_id', status.value);
+    handleChange("activity_status_id", status.value);
   }, [status]);
   useEffect(() => {
-    handleChange('activity_type_id', type.value);
+    handleChange("activity_type_id", type.value);
   }, [type]);
 
   useEffect(() => {
@@ -52,12 +66,11 @@ const Createactivity = () => {
   useEffect(() => {
     console.log(project);
     if (project) {
-
-      dispatch(getStaffSelect2({token: session?.access_token, id: project.value}));
+      dispatch(
+        getStaffSelect2({ token: session?.access_token, id: project.value })
+      );
     }
-
-  }, [project])
-
+  }, [project]);
 
   // Handle change for text fields
   const handleChange = (name, value) => {
@@ -71,11 +84,10 @@ const Createactivity = () => {
   const getSunEditorInstance = (sunEditor) => {
     editor.current = sunEditor;
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-  
     console.log(formData);
 
     setLoading(true);
@@ -90,8 +102,7 @@ const Createactivity = () => {
         ...formData,
         description: editor.current.getContents(),
         starts_at: formData.starts_at.toISOString().split("T")[0],
-        ends_at: formData.ends_at.toISOString().split("T")[0]
-
+        ends_at: formData.ends_at?.toISOString().split("T")[0],
       }),
     });
     setLoading(false);
@@ -148,7 +159,8 @@ const Createactivity = () => {
               >
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Activity Title :
+                    <span className="text-red-500 mr-2">*</span> Activity Title
+                    :
                   </label>
                   <input
                     type="text"
@@ -193,7 +205,6 @@ const Createactivity = () => {
                   />
                 </div>
 
-             
                 <div className="xl:col-span-6 col-span-12">
                   <label className="form-label">
                     {" "}
@@ -202,9 +213,10 @@ const Createactivity = () => {
                   <Select
                     name="project_id"
                     required
-                    onChange={(e) =>
-                      {handleChange("project_id", e.value ? e.value : null); setProject(e);}
-                    }
+                    onChange={(e) => {
+                      handleChange("project_id", e.value ? e.value : null);
+                      setProject(e);
+                    }}
                     isClearable={true}
                     options={projects}
                     value={
@@ -235,7 +247,9 @@ const Createactivity = () => {
                     options={managers}
                     value={
                       formData.responsible_id
-                        ? managers.find((row) => row.value === formData.responsible_id)
+                        ? managers.find(
+                            (row) => row.value === formData.responsible_id
+                          )
                         : null
                     }
                     isDisabled={!project}
@@ -245,10 +259,11 @@ const Createactivity = () => {
                     placeholder="select..."
                   />
                 </div>
- 
-              
+
                 <div className="xl:col-span-6 col-span-12">
-                  <label className="form-label"><span className="text-red-500 mr-2">*</span> Activity Type :</label>
+                  <label className="form-label">
+                    <span className="text-red-500 mr-2">*</span> Activity Type :
+                  </label>
                   <Select
                     name="activity_type_id"
                     onChange={(e) =>
@@ -274,8 +289,14 @@ const Createactivity = () => {
                   <label htmlFor="text-area" className="form-label">
                     Activity Description :
                   </label>
-                  <div id="project-descriptioin-editor">
-                    <SunEditor height="130px" getSunEditorInstance={getSunEditorInstance} />
+                  <div
+                    id="project-descriptioin-editor"
+                    style={{ position: "relative", zIndex: 10 }}
+                  >
+                    <SunEditor
+                      height="130px"
+                      getSunEditorInstance={getSunEditorInstance}
+                    />
                   </div>
                 </div>
                 <div className="xl:col-span-6 col-span-12">
@@ -283,14 +304,17 @@ const Createactivity = () => {
                     {" "}
                     <span className="text-red-500 mr-2">*</span>Starts At :
                   </label>
-                  <div className="form-group">
+                  <div
+                    className="form-group "
+                    style={{ position: "relative", zIndex: 50 }}
+                  >
                     <div className="input-group">
                       <div className="input-group-text text-muted !border-e-0">
                         {" "}
                         <i className="ri-calendar-line"></i>{" "}
                       </div>
                       <DatePicker
-                        className="ti-form-input ltr:rounded-l-none rtl:rounded-r-none focus:z-10"
+                        className="ti-form-input ltr:rounded-l-none rtl:rounded-r-none focus:z-40"
                         selected={formData.starts_at}
                         onChange={(date) => handleChange("starts_at", date)}
                         required
@@ -303,14 +327,17 @@ const Createactivity = () => {
                     {" "}
                     <span className="text-red-500 mr-2">*</span>Ends At :
                   </label>
-                  <div className="form-group">
+                  <div
+                    className="form-group"
+                    style={{ position: "relative", zIndex: 50 }}
+                  >
                     <div className="input-group">
                       <div className="input-group-text text-muted !border-e-0">
                         {" "}
                         <i className="ri-calendar-line"></i>{" "}
                       </div>
                       <DatePicker
-                        className="ti-form-input ltr:rounded-l-none rtl:rounded-r-none focus:z-10"
+                        className="ti-form-input ltr:rounded-l-none rtl:rounded-r-none focus:z-40"
                         selected={formData.ends_at}
                         onChange={(date) => handleChange("ends_at", date)}
                         required

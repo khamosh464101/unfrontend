@@ -7,10 +7,16 @@ import Link from "next/link";
 import React, { Fragment, useEffect, useState } from "react";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 import Swal from "sweetalert2";
-import { useSelector } from "react-redux";
-import Single from "@/components/projects/items/Single";
+import { useDispatch, useSelector } from "react-redux";
+import Single from "@/components/activities/items/Single";
+import {
+  getActivityStatuses,
+  getActivityTypes,
+  getProjectsSelect2,
+} from "@/shared/redux/features/apiSlice";
+import ClearIndicator from "@/lib/select2";
 
-const Projectlist = () => {
+const Activitylist = () => {
   const { data: session } = useSession();
   const Optionsdata = [
     { value: "Oldest", label: "Oledest" },
@@ -19,19 +25,36 @@ const Projectlist = () => {
     { value: "Z - A", label: "Z - A" },
   ];
   const deleteItem = useSelector((state) => state.delete.item);
-  const [projects, setProjects] = useState({});
+  const dispatch = useDispatch();
+  const {
+    activityStatuses: statuses,
+    activityTypes: types,
+    projects,
+    isLoading,
+    error,
+  } = useSelector((state) => state.api);
+  const [activities, setActivities] = useState({});
   const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const [url, setUrl] = useState(`${apiUrl}/api/projects`);
+  const [url, setUrl] = useState(`${apiUrl}/api/activities`);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("Oldest");
-  
+  const [status, setStatus] = useState(null);
+  const [type, setType] = useState(null);
+  const [project, setProject] = useState(null);
 
   useEffect(() => {
-    if (session?.access_token && !deleteItem) {
-      getProjects();
+    if (session?.access_token) {
+      dispatch(getActivityStatuses(session.access_token));
+      dispatch(getProjectsSelect2(session.access_token));
+      dispatch(getActivityTypes(session.access_token));
     }
-  }, [url, sortBy, session, deleteItem]);
-  const getProjects = async () => {
+  }, [session]);
+  useEffect(() => {
+    if (session?.access_token && !deleteItem) {
+      getActivities();
+    }
+  }, [url, sortBy, session, deleteItem, status, type, project]);
+  const getActivities = async () => {
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -44,6 +67,9 @@ const Projectlist = () => {
         body: JSON.stringify({
           search: search,
           sortBy: sortBy,
+          statusId: status?.value,
+          typeId: type?.value,
+          projectId: project?.value,
         }),
       });
       if (!res.ok) {
@@ -54,7 +80,7 @@ const Projectlist = () => {
         });
       } else {
         const result = await res.json();
-        setProjects(result);
+        setActivities(result);
       }
     } catch (error) {
       Swal.fire({
@@ -67,11 +93,11 @@ const Projectlist = () => {
 
   return (
     <Fragment>
-      <Seo title={"Project List"} />
+      <Seo title={"Activity List"} />
       <Pageheader
-        currentpage="Project List"
-        activepage="Projects"
-        mainpage="Project List"
+        currentpage="Activity List"
+        activepage="Activities"
+        mainpage="Activity List"
       />
       <div className="grid grid-cols-12 gap-6">
         <div className="xl:col-span-12 col-span-12">
@@ -80,20 +106,53 @@ const Projectlist = () => {
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex flex-wrap gap-1 newproject">
                   <Link
-                    href="/project-management/projects/create"
+                    href="/project-management/activities/create"
                     className="ti-btn ti-btn-primary-full me-2 !mb-0"
                   >
                     <i className="ri-add-line me-1 font-semibold align-middle"></i>
-                    New Project
+                    New Activity
                   </Link>
                   <Select
-                    name="colors"
+                    name="sortBy"
                     options={Optionsdata}
                     onChange={(e) => setSortBy(e.value)}
-                    className="!w-40"
+                    className="!w-28"
                     menuPlacement="auto"
                     classNamePrefix="Select2"
                     placeholder="Sort By"
+                  />
+                  <Select
+                    name="status"
+                    options={statuses}
+                    isClearable
+                    components={{ ClearIndicator }}
+                    onChange={(e) => setStatus(e)}
+                    className="!w-28"
+                    menuPlacement="auto"
+                    classNamePrefix="Select2"
+                    placeholder="Status"
+                  />
+                  <Select
+                    name="type"
+                    options={types}
+                    isClearable
+                    components={{ ClearIndicator }}
+                    onChange={(e) => setType(e)}
+                    className="!w-60"
+                    menuPlacement="auto"
+                    classNamePrefix="Select2"
+                    placeholder="Type"
+                  />
+                  <Select
+                    name="status"
+                    options={projects}
+                    isClearable
+                    components={{ ClearIndicator }}
+                    onChange={(e) => setProject(e)}
+                    className="!w-60"
+                    menuPlacement="auto"
+                    classNamePrefix="Select2"
+                    placeholder="Project"
                   />
                 </div>
 
@@ -101,12 +160,12 @@ const Projectlist = () => {
                   <input
                     className="form-control me-2"
                     type="search"
-                    placeholder="Search Project"
+                    placeholder="Search Activity"
                     aria-label="Search"
                     onChange={(e) => setSearch(e.target.value)}
                   />
                   <button
-                    onClick={getProjects}
+                    onClick={getActivities}
                     className="ti-btn ti-btn-light !mb-0"
                     type="submit"
                   >
@@ -118,17 +177,30 @@ const Projectlist = () => {
           </div>
         </div>
       </div>
+      {isLoading && (
+        <div className="flex justify-center items-center space-x-2">
+          <i className="ri-loader-4-line animate-spin text-blue-500 text-3xl"></i>
+
+          <span className="text-lg text-blue-500">Loading...</span>
+        </div>
+      )}
+      {error && (
+        <div class="flex justify-center items-center space-x-2 bg-red-100 border border-red-500 text-red-700 p-4 rounded-md">
+          <i class="ri-error-warning-line text-3xl"></i>
+          <span class="text-lg">{error} || Something went wrong!</span>
+        </div>
+      )}
       <div className="grid grid-cols-12 gap-x-6">
-        {projects?.data &&
-          projects.data.map((row, index) => (
+        {activities?.data &&
+          activities.data.map((row, index) => (
             <Single row={row} apiUrl={apiUrl} key={index} />
           ))}
       </div>
       <nav aria-label="Page navigation">
         <ul className="ti-pagination ltr:float-right rtl:float-left mb-4">
-          {projects.links &&
-            projects.links.length > 3 &&
-            projects.links.map((row, index) => (
+          {activities.links &&
+            activities.links.length > 3 &&
+            activities.links.map((row, index) => (
               <li
                 className={`page-item ${
                   row.active || row.url == null ? "disabled" : ""
@@ -149,4 +221,4 @@ const Projectlist = () => {
   );
 };
 
-export default Projectlist;
+export default Activitylist;

@@ -2,120 +2,77 @@
 
 import Pageheader from "@/shared/layout-components/page-header/pageheader";
 import Seo from "@/shared/layout-components/seo/seo";
+import {
+  getActivityStatuses,
+  getActivityTypes,
+  getProjectsSelect2,
+  getStaffSelect2,
+} from "@/shared/redux/features/apiSlice";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
-import Link from "next/link";
+import { useParams } from "next/navigation";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 import { FilePond } from "react-filepond";
+import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
 const SunEditor = dynamic(() => import("suneditor-react"), {
   ssr: false,
 });
-const Editproject = ({ params }) => {
-  const { id } = params;
-  const { data: session, status, update } = useSession();
+const Editactivity = () => {
+  const { id } = useParams();
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
-  const [statuses, setStatuses] = useState([]);
-  const [programs, setPrograms] = useState([]);
-  const [donors, setDonors] = useState([]);
-  const [managers, setManagers] = useState([]);
-  const [logo, setLogo] = useState(null);
-  const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  const [project, setProject] = useState(null);
+  const dispatch = useDispatch();
+  const {
+    activityStatuses: statuses,
+    activityStatusesDefault: status,
+    activityTypes: types,
+    activityTypesDefault: type,
+    projects,
+    staff: managers,
+    error,
+    isLoading,
+  } = useSelector((state) => state.api);
   const input = {
     title: "",
-    start_date: new Date(),
-    end_date: new Date(),
-    code: "",
-    budget: 0.0,
-    logo: null,
-    project_status_id: "",
-    program_id: "",
-    donor_id: "",
-    manager_id: "",
-    kobo_project_id: "",
+    starts_at: new Date(),
+    ends_at: "",
+    activity_status_id: "",
+    activity_type_id: "",
+    project_id: "",
+    description: "",
+    responsible_id: "",
   };
+
   const [formData, setFormData] = useState(input);
+  const baseUrl = useSelector((state) => state.general.baseUrl);
+  useEffect(() => {
+    handleChange("activity_status_id", status.value);
+  }, [status]);
+  useEffect(() => {
+    handleChange("activity_type_id", type.value);
+  }, [type]);
+
   useEffect(() => {
     if (session?.access_token) {
-      getProject();
-      getStatus();
-      getPrograms();
-      getDonors();
+      dispatch(getActivityStatuses(session?.access_token));
+      dispatch(getProjectsSelect2(session?.access_token));
+      dispatch(getActivityTypes(session?.access_token));
+      getActivity();
     }
   }, [session]);
-  const getProject = async () => {
-    const res = await fetch(`${apiUrl}/api/project/${id}/edit`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${session.access_token}`,
-      },
-    });
-    const result = await res.json();
-
-    if (result.id) {
-      setLogo(result.logo);
-      setFormData({
-        ...result,
-        logo: null,
-        start_date: new Date(result.start_date),
-        end_date: new Date(result.end_date),
-      });
+  useEffect(() => {
+    if (project) {
+      dispatch(
+        getStaffSelect2({ token: session?.access_token, id: project.value })
+      );
     }
-  };
-  const getStatus = async () => {
-    const res = await fetch(`${apiUrl}/api/projects-statuses/select2`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${session.access_token}`,
-        Accept: "application/json",
-      },
-    });
-    const result = await res.json();
-    if (result.length > 0) {
-      let tmp = result.map((item) => {
-        return { value: item.id, label: item.title };
-      });
-      setStatuses(tmp);
-    }
-    console.log(result);
-  };
-  const getPrograms = async () => {
-    const res = await fetch(`${apiUrl}/api/programs/select2`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${session.access_token}`,
-        Accept: "application/json",
-      },
-    });
-    const result = await res.json();
-    if (result.length > 0) {
-      let tmp = result.map((item) => {
-        return { value: item.id, label: item.title };
-      });
-      setPrograms(tmp);
-    }
-    console.log(result);
-  };
-  const getDonors = async () => {
-    const res = await fetch(`${apiUrl}/api/donors/select2`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${session.access_token}`,
-        Accept: "application/json",
-      },
-    });
-    const result = await res.json();
-    if (result.length > 0) {
-      let tmp = result.map((item) => {
-        return { value: item.id, label: item.name };
-      });
-      setDonors(tmp);
-    }
-    console.log(result);
-  };
+  }, [project]);
 
   // Handle change for text fields
   const handleChange = (name, value) => {
@@ -129,38 +86,56 @@ const Editproject = ({ params }) => {
   const getSunEditorInstance = (sunEditor) => {
     editor.current = sunEditor;
   };
+
+  const getActivity = async () => {
+    const res = await fetch(`${baseUrl}/api/activity/${id}/edit`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        Accept: "appliation/json",
+      },
+    });
+    const result = await res.json();
+
+    if (result.id) {
+      setProject({ label: result.project.title, value: result.project.id });
+      delete result.project;
+      delete result.status;
+      delete result.tickets;
+      delete result.types;
+      delete result.logs;
+      delete result.documents;
+      delete result.responsible;
+      delete result.gozars;
+      delete result.created_at;
+      delete result.updated_at;
+      delete result.id;
+      setFormData({
+        ...result,
+        starts_at: new Date(result.starts_at),
+        ends_at: new Date(result.ends_at),
+      });
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const form = new FormData();
-    form.append("title", formData.title);
-    if (formData.logo) {
-      form.append("logo", formData.logo[0].file, formData.logo[0].file.name);
-    }
-    form.append("description", editor.current.getContents());
-    form.append("code", formData.code);
-    form.append("program_id", formData.program_id);
-    form.append("budget", formData.budget);
-    form.append("donor_id", formData.donor_id);
-    form.append("project_status_id", formData.project_status_id);
-    form.append("kobo_project_id", formData.kobo_project_id);
-    form.append(
-      "manager_id",
-      Number.isInteger(formData.manager_id) ? formData.manager_id : ""
-    );
-    form.append("start_date", formData.start_date.toISOString().split("T")[0]);
-    form.append("end_date", formData.end_date.toISOString().split("T")[0]);
-    form.append("_method", "PUT");
-    console.log("formdata", formData);
-    console.log(form);
+
+    console.log(formData);
 
     setLoading(true);
-    const res = await fetch(`${apiUrl}/api/project/${id}`, {
-      method: "POST",
+    const res = await fetch(`${baseUrl}/api/activity/${id}`, {
+      method: "PUT",
       headers: {
+        "Content-Type": "application/json",
         Authorization: `Bearer ${session.access_token}`,
         Accept: "application/json",
       },
-      body: form,
+      body: JSON.stringify({
+        ...formData,
+        description: editor.current.getContents(),
+        starts_at: formData.starts_at.toISOString().split("T")[0],
+        ends_at: formData.ends_at?.toISOString().split("T")[0],
+      }),
     });
     setLoading(false);
     const result = await res.json();
@@ -187,48 +162,40 @@ const Editproject = ({ params }) => {
 
   return (
     <Fragment>
-      <Seo title={"Create Prject"} />
+      <Seo title={"Edit Activity"} />
       <Pageheader
-        currentpage="Create Prject"
-        activepage="Prjects"
-        mainpage="Create Prject"
+        currentpage="Edit Activity"
+        activepage="Activties"
+        mainpage="Edit Activity"
       />
       <div className="grid grid-cols-12 gap-6">
         <div className="xl:col-span-12 col-span-12">
           <div className="box custom-box">
-            <div className="box-header flex justify-between">
+            <div className="box-header">
               <div className="box-title">
-                Create Prject /
+                Edit Activity /
                 <span className="text-red-500 font-light">
                   {" "}
                   * shows required
                 </span>
               </div>
-              <div className="flex gap-2">
-                <Link
-                  href={`/project-management/projects/${id}`}
-                  className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-secondary-full btn-wave"
-                >
-                  <i className="ri-eye-line align-middle me-1 font-semibold"></i>
-                  View Project
-                </Link>
-              </div>
             </div>
             <div className="box-body">
               <form
                 onSubmit={handleSubmit}
-                id="createPrject"
+                id="createActivity"
                 className="grid grid-cols-12 gap-4"
               >
-                <div className="xl:col-span-4 col-span-12">
+                <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Prject Title :
+                    <span className="text-red-500 mr-2">*</span> Activity Title
+                    :
                   </label>
                   <input
                     type="text"
                     className="form-control"
                     id="input-label"
-                    placeholder="Enter Prject Title"
+                    placeholder="Enter Activity Title"
                     name="title"
                     required
                     value={formData.title}
@@ -243,20 +210,20 @@ const Editproject = ({ params }) => {
                     <span className="text-red-500 mr-2">*</span> Status :
                   </label>
                   <Select
-                    name="project_status_id"
+                    name="activity_status_id"
                     required
                     onChange={(e) =>
                       handleChange(
-                        "project_status_id",
+                        "activity_status_id",
                         e.value ? e.value : null
                       )
                     }
                     isClearable={true}
                     options={statuses}
                     value={
-                      formData.project_status_id
+                      formData.activity_status_id
                         ? statuses.find(
-                            (row) => row.value === formData.project_status_id
+                            (row) => row.value === formData.activity_status_id
                           )
                         : null
                     }
@@ -266,40 +233,25 @@ const Editproject = ({ params }) => {
                     placeholder="select..."
                   />
                 </div>
-                <div className="xl:col-span-4 col-span-12">
-                  <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Prject Code :
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="input-label"
-                    placeholder="Enter Prject code"
-                    name="code"
-                    required
-                    value={formData.code}
-                    onChange={(e) =>
-                      handleChange(e.target.name, e.target.value)
-                    }
-                  />
-                </div>
+
                 <div className="xl:col-span-6 col-span-12">
                   <label className="form-label">
                     {" "}
-                    <span className="text-red-500 mr-2">*</span> Program :
+                    <span className="text-red-500 mr-2">*</span> Project :
                   </label>
                   <Select
-                    name="program_id"
+                    name="project_id"
                     required
-                    onChange={(e) =>
-                      handleChange("program_id", e.value ? e.value : null)
-                    }
+                    onChange={(e) => {
+                      handleChange("project_id", e.value ? e.value : null);
+                      setProject(e);
+                    }}
                     isClearable={true}
-                    options={programs}
+                    options={projects}
                     value={
-                      formData.program_id
-                        ? programs.find(
-                            (row) => row.value === formData.program_id
+                      formData.project_id
+                        ? projects.find(
+                            (row) => row.value === formData.project_id
                           )
                         : null
                     }
@@ -309,79 +261,49 @@ const Editproject = ({ params }) => {
                     placeholder="select..."
                   />
                 </div>
-                <div className="xl:col-span-4 col-span-12">
-                  <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Project Budget
-                    :
-                  </label>
-                  <input
-                    type="number"
-                    step={0.01}
-                    min={0}
-                    className="form-control"
-                    id="input-label"
-                    placeholder="Enter Prject Budget in USD"
-                    name="budget"
-                    required
-                    value={formData.budget}
-                    onChange={(e) =>
-                      handleChange(e.target.name, e.target.value)
-                    }
-                  />
-                </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label className="form-label">
                     {" "}
-                    <span className="text-red-500 mr-2">*</span> Donor :
+                    <span className="text-red-500 mr-2">*</span> Assigned to :
                   </label>
                   <Select
-                    name="donor_id"
+                    name="responsible_id"
                     required
                     onChange={(e) =>
-                      handleChange("donor_id", e.value ? e.value : null)
+                      handleChange("responsible_id", e.value ? e.value : null)
                     }
                     isClearable={true}
-                    options={donors}
+                    options={managers}
                     value={
-                      formData.donor_id
-                        ? donors.find((row) => row.value === formData.donor_id)
+                      formData.responsible_id
+                        ? managers.find(
+                            (row) => row.value === formData.responsible_id
+                          )
                         : null
                     }
+                    isDisabled={!project}
                     className="js-example-placeholder-multiple w-full js-states z-30"
                     menuPlacement="auto"
                     classNamePrefix="Select2"
                     placeholder="select..."
                   />
                 </div>
-                <div className="xl:col-span-4 col-span-12">
-                  <label htmlFor="input-label" className="form-label">
-                    Kobo project ID :
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="input-label"
-                    placeholder="Enter Kobo project ID"
-                    name="kobo_project_id"
-                    value={formData.kobo_project_id}
-                    onChange={(e) =>
-                      handleChange(e.target.name, e.target.value)
-                    }
-                  />
-                </div>
+
                 <div className="xl:col-span-6 col-span-12">
-                  <label className="form-label">Manager :</label>
+                  <label className="form-label">
+                    <span className="text-red-500 mr-2">*</span> Activity Type :
+                  </label>
                   <Select
-                    name="manager_id"
+                    name="activity_type_id"
                     onChange={(e) =>
-                      handleChange("manager_id", e.value ? e.value : null)
+                      handleChange("activity_type_id", e.value ? e.value : null)
                     }
                     isClearable={true}
-                    options={managers}
+                    options={types}
                     value={
-                      formData.manager_id
-                        ? manager.find(
-                            (row) => row.value === formData.manager_id
+                      formData.activity_type_id
+                        ? types.find(
+                            (row) => row.value === formData.activity_type_id
                           )
                         : null
                     }
@@ -394,10 +316,12 @@ const Editproject = ({ params }) => {
 
                 <div className="xl:col-span-12 col-span-12">
                   <label htmlFor="text-area" className="form-label">
-                    Prject Description :
+                    Activity Description :
                   </label>
                   <div id="project-descriptioin-editor">
                     <SunEditor
+                      height="130px"
+                      style={{ zIndex: "10 !important" }}
                       setContents={formData.description}
                       getSunEditorInstance={getSunEditorInstance}
                     />
@@ -406,19 +330,21 @@ const Editproject = ({ params }) => {
                 <div className="xl:col-span-6 col-span-12">
                   <label className="form-label">
                     {" "}
-                    <span className="text-red-500 mr-2">*</span>Start Date :
+                    <span className="text-red-500 mr-2">*</span>Starts At :
                   </label>
-                  <div className="form-group">
+                  <div
+                    className="form-group "
+                    style={{ position: "relative", zIndex: 50 }}
+                  >
                     <div className="input-group">
                       <div className="input-group-text text-muted !border-e-0">
                         {" "}
                         <i className="ri-calendar-line"></i>{" "}
                       </div>
                       <DatePicker
-                        className="ti-form-input ltr:rounded-l-none rtl:rounded-r-none focus:z-10"
-                        selected={formData.start_date}
-                        onChange={(date) => handleChange("start_date", date)}
-                        dateFormat="Pp"
+                        className="ti-form-input ltr:rounded-l-none rtl:rounded-r-none focus:z-40"
+                        selected={formData.starts_at}
+                        onChange={(date) => handleChange("starts_at", date)}
                         required
                       />
                     </div>
@@ -427,59 +353,38 @@ const Editproject = ({ params }) => {
                 <div className="xl:col-span-6 col-span-12">
                   <label className="form-label">
                     {" "}
-                    <span className="text-red-500 mr-2">*</span>End Date :
+                    <span className="text-red-500 mr-2">*</span>Ends At :
                   </label>
-                  <div className="form-group">
+                  <div
+                    className="form-group"
+                    style={{ position: "relative", zIndex: 50 }}
+                  >
                     <div className="input-group">
                       <div className="input-group-text text-muted !border-e-0">
                         {" "}
                         <i className="ri-calendar-line"></i>{" "}
                       </div>
                       <DatePicker
-                        className="ti-form-input ltr:rounded-l-none rtl:rounded-r-none focus:z-10"
-                        selected={formData.end_date}
-                        onChange={(date) => handleChange("end_date", date)}
-                        dateFormat="Pp"
+                        className="ti-form-input ltr:rounded-l-none rtl:rounded-r-none focus:z-40"
+                        selected={formData.ends_at}
+                        onChange={(date) => handleChange("ends_at", date)}
                         required
                       />
                     </div>
                   </div>
-                </div>
-
-                <div className="xl:col-span-12 col-span-12">
-                  <label htmlFor="text-area" className="form-label">
-                    Logo
-                  </label>
-                  <div className="w-full flex justify-center items-center border-2 border-dashed rounded-md p-2 mb-2 ">
-                    <img src={logo} className="w-12" />
-                  </div>
-                  <FilePond
-                    files={formData.logo}
-                    onupdatefiles={(fileItem) =>
-                      setFormData((prevData) => ({
-                        ...prevData,
-                        logo: fileItem,
-                      }))
-                    }
-                    allowMultiple={false}
-                    acceptedFileTypes={["image/*"]}
-                    maxFiles={1}
-                    name="files"
-                    labelIdle="Drag & Drop your file here or click "
-                  />
                 </div>
               </form>
             </div>
             <div className="box-footer">
               <button
                 type="submit"
-                form="createPrject"
+                form="createActivity"
                 className="ti-btn ti-btn-primary btn-wave ms-auto float-right"
               >
                 {loading && (
                   <i class="las la-circle-notch animate-spin text-md"></i>
                 )}
-                Create Prject
+                Update Activity
               </button>
             </div>
           </div>
@@ -489,4 +394,4 @@ const Editproject = ({ params }) => {
   );
 };
 
-export default Editproject;
+export default Editactivity;
