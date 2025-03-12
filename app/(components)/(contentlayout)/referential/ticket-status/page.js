@@ -104,7 +104,7 @@ const TicketStatus = () => {
       <Seo title={"Ticket Statuses"} />
       <Pageheader
         currentpage="Ticket Statuses"
-        activepage="Tables"
+        activepage="Referential"
         mainpage="Ticket Statuses"
       />
       <div className="grid grid-cols-12 gap-6">

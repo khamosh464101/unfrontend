@@ -10,6 +10,7 @@ import {
 } from "@/shared/redux/features/apiSlice";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
@@ -166,18 +167,28 @@ const Editactivity = () => {
       <Pageheader
         currentpage="Edit Activity"
         activepage="Activties"
+        activeurl="/project-management/activities"
         mainpage="Edit Activity"
       />
       <div className="grid grid-cols-12 gap-6">
         <div className="xl:col-span-12 col-span-12">
           <div className="box custom-box">
-            <div className="box-header">
+            <div className="box-header flex justify-between">
               <div className="box-title">
                 Edit Activity /
                 <span className="text-red-500 font-light">
                   {" "}
                   * shows required
                 </span>
+              </div>
+              <div className="flex gap-2">
+                <Link
+                  href={`/project-management/activities/${id}`}
+                  className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-secondary-full btn-wave"
+                >
+                  <i className="ri-eye-line align-middle me-1 font-semibold"></i>
+                  View Activity
+                </Link>
               </div>
             </div>
             <div className="box-body">

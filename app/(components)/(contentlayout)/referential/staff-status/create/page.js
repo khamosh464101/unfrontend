@@ -81,6 +81,7 @@ const CreateStaffStatus = () => {
       <Pageheader
         currentpage="Create  Staff Status"
         activepage=" Staff Statuses"
+        activeurl="/referential/staf-status"
         mainpage="Create  Staff Status"
       />
       <div className="grid grid-cols-12 gap-6">

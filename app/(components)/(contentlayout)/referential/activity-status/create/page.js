@@ -82,6 +82,7 @@ const CreateActivityStatus = () => {
       <Pageheader
         currentpage="Create  Activity Status"
         activepage=" Activity Statuses"
+        activeurl="/referential/activity-status"
         mainpage="Create  Activity Status"
       />
       <div className="grid grid-cols-12 gap-6">

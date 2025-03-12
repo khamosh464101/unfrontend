@@ -56,7 +56,7 @@ const EditProvince = ({ params }) => {
 
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value ,
+      [name]: value,
     }));
   };
 
@@ -105,6 +105,7 @@ const EditProvince = ({ params }) => {
       <Pageheader
         currentpage="Edit province"
         activepage="Provinces"
+        activeurl="/referential/provinces"
         mainpage="Edit province"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -139,7 +140,6 @@ const EditProvince = ({ params }) => {
                     value={formData.name}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -155,7 +155,6 @@ const EditProvince = ({ params }) => {
                     value={formData.name_fa}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -171,7 +170,6 @@ const EditProvince = ({ params }) => {
                     value={formData.name_pa}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -187,7 +185,6 @@ const EditProvince = ({ params }) => {
                     value={formData.latitude}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -203,7 +200,6 @@ const EditProvince = ({ params }) => {
                     value={formData.longitude}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -218,10 +214,7 @@ const EditProvince = ({ params }) => {
                     value={formData.code}
                     onChange={handleChange}
                   />
-                  
                 </div>
-
-                
               </form>
             </div>
             <div className="box-footer">

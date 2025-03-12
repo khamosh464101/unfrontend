@@ -81,6 +81,7 @@ const CreateProjectStatus = () => {
       <Pageheader
         currentpage="Create  Project Status"
         activepage=" Project Statuses"
+        activeurl="/referential/project-status"
         mainpage="Create  Project Status"
       />
       <div className="grid grid-cols-12 gap-6">

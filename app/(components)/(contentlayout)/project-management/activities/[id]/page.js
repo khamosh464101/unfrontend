@@ -1,43 +1,40 @@
 "use client";
 
 import Attachment from "@/components/projects/Attachment";
-import Location from "@/components/projects/Location";
-import Log from "@/components/projects/Log";
-import Member from "@/components/projects/Member";
+import Location from "@/components/activities/Location";
+import Log from "@/components/activities/Log";
 import Pageheader from "@/shared/layout-components/page-header/pageheader";
 import Seo from "@/shared/layout-components/seo/seo";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React, { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
-const Projectoverview = ({ params }) => {
+const Activityoverview = () => {
   const { data: session } = useSession();
-  const { id } = params;
-  const [project, setProject] = useState({});
-  const [activities, setActivities] = useState([]);
+  const { id } = useParams();
+  const [activity, setActivity] = useState({});
+  const [tickets, setTickets] = useState([]);
   const [documents, setDocuments] = useState([]);
-  const [staff, setStaff] = useState([]);
   const [gozars, setGozars] = useState([]);
   const baseUrl = useSelector((state) => state.general.baseUrl);
   const menus = [
     { name: "Log History", icon: "ri-chat-history-line" },
     { name: "Location", icon: "ri-map-pin-2-line" },
-    { name: "Members", icon: "ri-group-line" },
     { name: "Attachements", icon: "ri-attachment-line" },
-  ]
+  ];
   const [menu, setMenu] = useState(menus[0]);
 
   const router = useRouter();
   useEffect(() => {
     if (session?.access_token) {
-      getProject();
+      getActivity();
     }
   }, [session, id]);
-  const getProject = async () => {
-    const res = await fetch(`${baseUrl}/api/project/${id}/edit`, {
+  const getActivity = async () => {
+    const res = await fetch(`${baseUrl}/api/activity/${id}/edit`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${session.access_token}`,
@@ -48,17 +45,15 @@ const Projectoverview = ({ params }) => {
 
     if (result.id) {
       setDocuments(result.documents);
-      setActivities(result.activities);
-      setStaff(result.staff);
+      setTickets(result.tickets);
       setGozars(result.gozars);
-      setProject(result);
+      setActivity(result);
     }
   };
 
-
-  const deleteProject = async () => {
+  const deleteActivity = async () => {
     try {
-      const response = await fetch(`${baseUrl}/api/project/${id}`, {
+      const response = await fetch(`${baseUrl}/api/activity/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +69,7 @@ const Projectoverview = ({ params }) => {
         Swal.fire({
           title: "Error",
           text:
-            result.message || "An error occurred while deleting the project.",
+            result.message || "An error occurred while deleting the activity.",
           icon: "error",
         });
         return;
@@ -82,10 +77,10 @@ const Projectoverview = ({ params }) => {
 
       Swal.fire({
         title: "Success",
-        text: "Project deleted successfully.",
+        text: "Activity deleted successfully.",
         icon: "success",
       });
-      router.push("/project-management/projects");
+      router.push("/project-management/activities");
     } catch (error) {
       Swal.fire({
         title: "Error",
@@ -97,31 +92,32 @@ const Projectoverview = ({ params }) => {
 
   return (
     <Fragment>
-      <Seo title={"Project Overview"} />
+      <Seo title={"Activity Overview"} />
       <Pageheader
-        currentpage="Project Overview"
-        activepage="Projects"
-        mainpage="Project Overview"
+        currentpage="Activity Overview"
+        activepage="Activities"
+        activeurl="/project-management/activities"
+        mainpage="Activity Overview"
       />
       <div className="grid grid-cols-12 gap-6">
         <div className="xl:col-span-9 col-span-12">
           <div className="box custom-box">
             <div className="box-header justify-between flex">
-              <div className="box-title">Project Details</div>
+              <div className="box-title">Activity Details</div>
               <div className="flex gap-2">
                 <Link
-                  href="/project-management/projects/create"
+                  href="/project-management/activities/create"
                   className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-secondary-full btn-wave"
                 >
                   <i className="ri-add-line align-middle me-1 font-semibold"></i>
-                  Create Project
+                  Create Activity
                 </Link>
                 <Link
-                  href={`/project-management/projects/edit/${id}`}
+                  href={`/project-management/activities/edit/${id}`}
                   className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-primary-full btn-wave"
                 >
                   <i className="ri-edit-line align-middle me-1 font-semibold"></i>
-                  Edit Project
+                  Edit Activity
                 </Link>
                 <button
                   onClick={() =>
@@ -135,25 +131,27 @@ const Projectoverview = ({ params }) => {
                       confirmButtonText: "Yes, delete it!",
                     }).then((result) => {
                       if (result.isConfirmed) {
-                        deleteProject();
+                        deleteActivity();
                       }
                     })
                   }
                   className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-danger-full btn-wave"
                 >
                   <i className="ri-delete-bin-line align-middle me-1 font-semibold"></i>
-                  Delete Project
+                  Delete Activity
                 </button>
               </div>
             </div>
             <div className="box-body">
-              <h5 className="font-semibold mb-4 task-title">{project.title}</h5>
+              <h5 className="font-semibold mb-4 task-title">
+                {activity.title}
+              </h5>
               <div className="text-[.9375rem] font-semibold mb-2">
-                Project Description :
+                Activity Description :
               </div>
               <p
                 className="text-[#8c9097] dark:text-white/50 task-description my-6"
-                dangerouslySetInnerHTML={{ __html: project.description }}
+                dangerouslySetInnerHTML={{ __html: activity.description }}
               />
             </div>
             <div className="box-footer">
@@ -163,7 +161,7 @@ const Projectoverview = ({ params }) => {
                     Assigned Date
                   </span>
                   <span className="block text-[.875rem] font-semibold">
-                    {project.start_date}
+                    {activity.start_date}
                   </span>
                 </div>
                 <div>
@@ -171,7 +169,7 @@ const Projectoverview = ({ params }) => {
                     Due Date
                   </span>
                   <span className="block text-[.875rem] font-semibold">
-                    {project.end_date}
+                    {activity.end_date}
                   </span>
                 </div>
                 <div>
@@ -183,19 +181,19 @@ const Projectoverview = ({ params }) => {
                       className="badge"
                       style={{
                         backgroundColor: `rgba(${parseInt(
-                          project?.status?.color.slice(1, 3),
+                          activity?.status?.color.slice(1, 3),
                           16
                         )}, ${parseInt(
-                          project?.status?.color.slice(3, 5),
+                          activity?.status?.color.slice(3, 5),
                           16
                         )}, ${parseInt(
-                          project?.status?.color.slice(5, 7),
+                          activity?.status?.color.slice(5, 7),
                           16
                         )}, 0.1)`,
-                        color: project?.status?.color,
+                        color: activity?.status?.color,
                       }}
                     >
-                      {project?.status?.title}
+                      {activity?.status?.title}
                     </span>
                   </span>
                 </div>
@@ -219,13 +217,18 @@ const Projectoverview = ({ params }) => {
               ))}
             </div>
             <div className="box-body">
-              {menu.name == "Log History" && <Log project={project} />}
-              {menu.name == "Location" && <Location project={project} gozars={gozars} setGozars={setGozars} />}
-              {menu.name == "Members" && <Member project={project} setStaff={setStaff} staff={staff} />}
+              {menu.name == "Log History" && <Log activity={activity} />}
+              {menu.name == "Location" && (
+                <Location
+                  activity={activity}
+                  gozars={gozars}
+                  setGozars={setGozars}
+                />
+              )}
               {menu.name == "Attachements" && (
                 <Attachment
-                  type={"Project"}
-                  id={project.id}
+                  type={"Activity"}
+                  id={activity.id}
                   documents={documents}
                   setDocuments={setDocuments}
                 />
@@ -236,7 +239,7 @@ const Projectoverview = ({ params }) => {
         <div className="xl:col-span-3 col-span-12">
           <div className="box custom-box">
             <div className="box-header">
-              <div className="box-title">Project Projects</div>
+              <div className="box-title">Activity Activities</div>
             </div>
             <div className="box-body !p-0">
               <div className="table-responsive">
@@ -253,7 +256,7 @@ const Projectoverview = ({ params }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {activities?.map((row, index) => (
+                    {tickets?.map((row, index) => (
                       <tr className="border border-defaultborder">
                         <td>
                           <div className="flex items-center">
@@ -271,7 +274,7 @@ const Projectoverview = ({ params }) => {
                         <td>
                           <div className="inline-flex">
                             <Link
-                              href={`/project-management/projects/${row.id}`}
+                              href={`/project-management/activities/${row.id}`}
                               className="ti-btn ti-btn-sm ti-btn-info me-[0.375rem]"
                             >
                               <i className="ri-eye-line"></i>
@@ -285,11 +288,10 @@ const Projectoverview = ({ params }) => {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </Fragment>
   );
 };
 
-export default Projectoverview;
+export default Activityoverview;

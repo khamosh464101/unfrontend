@@ -112,7 +112,7 @@ const Provinces = () => {
       <Seo title={"Provinces"} />
       <Pageheader
         currentpage="Provinces"
-        activepage="Tables"
+        activepage="Referential"
         mainpage="Provinces"
       />
       <div className="grid grid-cols-12 gap-6">

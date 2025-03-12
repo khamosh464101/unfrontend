@@ -82,6 +82,7 @@ const CreateTicketStatus = () => {
       <Pageheader
         currentpage="Create  Ticket Status"
         activepage=" Ticket Statuses"
+        activeurl="/referential/ticket-statu"
         mainpage="Create  Ticket Status"
       />
       <div className="grid grid-cols-12 gap-6">

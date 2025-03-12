@@ -157,6 +157,7 @@ const CreateGozar = () => {
       <Pageheader
         currentpage="Create Gozar"
         activepage="Gozars"
+        activeurl="/referential/gozars"
         mainpage="Create Gozar"
       />
       <div className="grid grid-cols-12 gap-6">

@@ -104,7 +104,7 @@ const TicketType = () => {
       <Seo title={"Activty Types"} />
       <Pageheader
         currentpage="Activty Types"
-        activepage="Tables"
+        activepage="Type"
         mainpage="Activty Types"
       />
       <div className="grid grid-cols-12 gap-6">

@@ -186,7 +186,11 @@ const Gozars = () => {
   return (
     <div>
       <Seo title={"Gozars"} />
-      <Pageheader currentpage="Gozars" activepage="Tables" mainpage="Gozars" />
+      <Pageheader
+        currentpage="Gozars"
+        activepage="Referential"
+        mainpage="Gozars"
+      />
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12">
           <div className="box">

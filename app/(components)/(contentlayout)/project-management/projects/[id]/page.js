@@ -27,7 +27,7 @@ const Projectoverview = ({ params }) => {
     { name: "Location", icon: "ri-map-pin-2-line" },
     { name: "Members", icon: "ri-group-line" },
     { name: "Attachements", icon: "ri-attachment-line" },
-  ]
+  ];
   const [menu, setMenu] = useState(menus[0]);
 
   const router = useRouter();
@@ -54,7 +54,6 @@ const Projectoverview = ({ params }) => {
       setProject(result);
     }
   };
-
 
   const deleteProject = async () => {
     try {
@@ -101,6 +100,7 @@ const Projectoverview = ({ params }) => {
       <Pageheader
         currentpage="Project Overview"
         activepage="Projects"
+        activeurl="/project-management/projects"
         mainpage="Project Overview"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -220,8 +220,16 @@ const Projectoverview = ({ params }) => {
             </div>
             <div className="box-body">
               {menu.name == "Log History" && <Log project={project} />}
-              {menu.name == "Location" && <Location project={project} gozars={gozars} setGozars={setGozars} />}
-              {menu.name == "Members" && <Member project={project} setStaff={setStaff} staff={staff} />}
+              {menu.name == "Location" && (
+                <Location
+                  project={project}
+                  gozars={gozars}
+                  setGozars={setGozars}
+                />
+              )}
+              {menu.name == "Members" && (
+                <Member project={project} setStaff={setStaff} staff={staff} />
+              )}
               {menu.name == "Attachements" && (
                 <Attachment
                   type={"Project"}
@@ -285,7 +293,6 @@ const Projectoverview = ({ params }) => {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </Fragment>

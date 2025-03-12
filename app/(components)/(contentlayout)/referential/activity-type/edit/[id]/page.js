@@ -102,6 +102,7 @@ const EditActivityType = ({ params }) => {
       <Pageheader
         currentpage="Edit Activity Type"
         activepage="Activity Types"
+        activeurl="/referential/activity-type"
         mainpage="Edit Activity Type"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -173,8 +174,8 @@ const EditActivityType = ({ params }) => {
                     Default type
                   </label>
                   <p>
-                    If checked, this type will be automatically afffected to
-                    new activity
+                    If checked, this type will be automatically afffected to new
+                    activity
                   </p>
                 </div>
               </form>

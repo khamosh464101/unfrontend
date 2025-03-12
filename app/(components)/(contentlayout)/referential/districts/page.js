@@ -42,7 +42,6 @@ const Districts = () => {
     const res = await fetch(`${baseUrl}/api/provinces/select2`, {
       method: "GET",
       headers: {
-       
         Authorization: `Bearer ${session.access_token}`,
         Accept: "application/json",
       },
@@ -56,10 +55,12 @@ const Districts = () => {
       });
     } else {
       const result = await res.json();
-      const tmp = result.map((row) => {return {label: row.name, value: row.id}});
+      const tmp = result.map((row) => {
+        return { label: row.name, value: row.id };
+      });
       setProvinces(tmp);
     }
-  }
+  };
   const getDistricts = async () => {
     try {
       const res = await fetch(url, {
@@ -73,7 +74,7 @@ const Districts = () => {
         body: JSON.stringify({
           search: search,
           sortBy: sortBy,
-          provinceId: provinceId
+          provinceId: provinceId,
         }),
       });
       if (!res.ok) {
@@ -139,7 +140,7 @@ const Districts = () => {
       <Seo title={"Districts"} />
       <Pageheader
         currentpage="Districts"
-        activepage="Tables"
+        activepage="Locations"
         mainpage="Districts"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -147,15 +148,15 @@ const Districts = () => {
           <div className="box">
             <div className="box-header">
               <div className="flex justify-between gap-4">
-              <div className="flex flex-wrap gap-1 newproject">
-                <Link
-                  href="/referential/districts/create"
-                  className="ti-btn ti-btn-primary-full me-2 !mb-0"
-                >
-                  <i className="ri-add-line me-1 font-semibold align-middle"></i>
-                  New district
-                </Link>
-                <Select
+                <div className="flex flex-wrap gap-1 newproject">
+                  <Link
+                    href="/referential/districts/create"
+                    className="ti-btn ti-btn-primary-full me-2 !mb-0"
+                  >
+                    <i className="ri-add-line me-1 font-semibold align-middle"></i>
+                    New district
+                  </Link>
+                  <Select
                     name="colors"
                     options={Optionsdata}
                     onChange={(e) => setSortBy(e.value)}
@@ -173,9 +174,8 @@ const Districts = () => {
                     menuPlacement="auto"
                     classNamePrefix="Select2"
                     placeholder="Province"
-                    
                   />
-                  </div>
+                </div>
 
                 <div className="flex" role="search">
                   <input
@@ -234,16 +234,10 @@ const Districts = () => {
                       {districts?.data &&
                         districts.data.map((row, index) => (
                           <tr className="border-b border-defaultborder">
-                            <th scope="row">
-                              {row.name}
-                            </th>
+                            <th scope="row">{row.name}</th>
                             <td>{row.name_fa}</td>
-                            <td>
-                              {row.name_pa}
-                            </td>
-                            <td>
-                              {row.province.name}
-                            </td>
+                            <td>{row.name_pa}</td>
+                            <td>{row.province.name}</td>
                             <td>{row.latitude}</td>
                             <td>{row.longitude}</td>
                             <td>{row.code}</td>

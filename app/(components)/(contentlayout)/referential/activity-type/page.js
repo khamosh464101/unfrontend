@@ -104,7 +104,7 @@ const ActivityType = () => {
       <Seo title={"Activty Types"} />
       <Pageheader
         currentpage="Activty Types"
-        activepage="Tables"
+        activepage="Referential"
         mainpage="Activty Types"
       />
       <div className="grid grid-cols-12 gap-6">

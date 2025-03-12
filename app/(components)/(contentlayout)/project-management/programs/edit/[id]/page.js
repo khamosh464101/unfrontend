@@ -131,6 +131,7 @@ const Edit = ({ params }) => {
       <Pageheader
         currentpage="Edit Program"
         activepage="Programs"
+        activeurl="/project-management/programs"
         mainpage="Edit Program"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -210,7 +211,7 @@ const Edit = ({ params }) => {
                   </label>
                   <div id="project-descriptioin-editor">
                     <SunEditor
-                       height="130px"
+                      height="130px"
                       setContents={formData.description}
                       getSunEditorInstance={getSunEditorInstance}
                     />

@@ -131,6 +131,14 @@ export const MenuItems = [
         selected: false,
         dirchange: false,
       },
+      {
+        path: "/project-management/tickets",
+        title: "Tickets",
+        type: "link",
+        active: false,
+        selected: false,
+        dirchange: false,
+      },
 
       {
         title: "Nested",

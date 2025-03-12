@@ -7,56 +7,25 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
-function Location({ project, gozars, setGozars }) {
+function Location({ activity, gozars, setGozars }) {
   const baseUrl = useSelector((state) => state.general.baseUrl);
   const { data: session } = useSession();
+  const [dgozarsAll, setDgozarsAll] = useState([]);
   const [dgozars, setDgozars] = useState([]);
   const [gozar, setGozar] = useState(null);
+  const [districtsAll, setDistrictsAll] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [district, setDistrict] = useState(null);
   const [provinces, setProvinces] = useState([]);
   const [province, setProvince] = useState(null);
 
   useEffect(() => {
-    getProvinces();
+    getLocation();
   }, [session]);
-  useEffect(() => {
-    if (province) {
-      getDistricts();
-    }
-  }, [province]);
-  useEffect(() => {
-    if (district) {
-      getGozars();
-    }
-  }, [district]);
 
-  const getProvinces = async () => {
-    const res = await fetch(`${baseUrl}/api/provinces/select2`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${session.access_token}`,
-        Accept: "application/json",
-      },
-    });
-    if (!res.ok) {
-      Swal.fire({
-        title: "warning",
-        text: "Something went wrong.",
-        icon: "warning",
-      });
-    } else {
-      const result = await res.json();
-      const tmp = result.map((row) => {
-        return { label: row.name, value: row.id };
-      });
-      setProvinces(tmp);
-    }
-  };
-
-  const getDistricts = async () => {
+  const getLocation = async () => {
     const res = await fetch(
-      `${baseUrl}/api/districts/select2/${province.value}`,
+      `${baseUrl}/api/activities/locations/${activity.project_id}`,
       {
         method: "GET",
         headers: {
@@ -72,45 +41,33 @@ function Location({ project, gozars, setGozars }) {
         icon: "warning",
       });
     } else {
-      const result = await res.json();
-      const tmp = result.map((row) => {
-        return { label: row.name, value: row.id };
-      });
-      setDistricts(tmp);
-      setDistrict(null);
-      setGozar(null);
+      const { provinces, districts, gozars } = await res.json();
+      setProvinces(provinces);
+      setDistrictsAll(districts);
+      setDgozarsAll(gozars);
     }
   };
 
-  const getGozars = async () => {
-    const res = await fetch(`${baseUrl}/api/gozars/select2/${district.value}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${session.access_token}`,
-        Accept: "application/json",
-      },
-    });
-
-    if (!res.ok) {
-      Swal.fire({
-        title: "warning",
-        text: "Something went wrong.",
-        icon: "warning",
-      });
-    } else {
-      const result = await res.json();
-      const tmp = result.map((row) => {
-        return { label: row.name, value: row.id };
-      });
-      setDgozars(tmp);
-      setGozar(null);
-    }
+  const onChangeProvince = (e) => {
+    setProvince(e);
+    let tmp = districtsAll.filter((row) => row.province_id == e.value);
+    setDistricts(tmp);
+    setDistrict(null);
+    setGozar(null);
   };
+
+  const onChangeDistrict = (e) => {
+    setDistrict(e);
+    let tmp = dgozarsAll.filter((row) => row.district_id == e.value);
+    setDgozars(tmp);
+    setGozar(null);
+  };
+
   const handleFileUpload = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${baseUrl}/api/project/add/gozar`, {
+      const response = await fetch(`${baseUrl}/api/activity/add/gozar`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -118,7 +75,7 @@ function Location({ project, gozars, setGozars }) {
           Accept: "application/json",
         },
         body: JSON.stringify({
-          id: project.id,
+          id: activity.id,
           gozar_id: gozar.value,
         }),
       });
@@ -142,7 +99,7 @@ function Location({ project, gozars, setGozars }) {
   };
   const deleteDocument = async (did) => {
     try {
-      const res = await fetch(`${baseUrl}/api/project/remove/gozar/`, {
+      const res = await fetch(`${baseUrl}/api/activity/remove/gozar/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -150,7 +107,7 @@ function Location({ project, gozars, setGozars }) {
           Accept: "application/json",
         },
         body: JSON.stringify({
-          id: project.id,
+          id: activity.id,
           gozar_id: did,
         }),
       });
@@ -195,7 +152,7 @@ function Location({ project, gozars, setGozars }) {
             <Select
               name="provinces_id"
               required
-              onChange={(e) => setProvince(e)}
+              onChange={(e) => onChangeProvince(e)}
               isClearable={true}
               options={provinces}
               value={province}
@@ -213,7 +170,7 @@ function Location({ project, gozars, setGozars }) {
             <Select
               name="district_id"
               required
-              onChange={(e) => setDistrict(e)}
+              onChange={(e) => onChangeDistrict(e)}
               isClearable={true}
               options={districts}
               value={district}
@@ -273,7 +230,7 @@ function Location({ project, gozars, setGozars }) {
                     onClick={() =>
                       Swal.fire({
                         title: "Are you sure?",
-                        text: "by confirming this the member will be removed from this project!",
+                        text: "by confirming this the member will be removed from this activity!",
                         icon: "warning",
                         showCancelButton: true,
                         confirmButtonColor: "#3085d6",

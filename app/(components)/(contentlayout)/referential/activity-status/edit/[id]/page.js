@@ -102,6 +102,7 @@ const EditActivityStatus = ({ params }) => {
       <Pageheader
         currentpage="Edit Activity Status"
         activepage="Activity Statuses"
+        activeurl="/referential/activity-status"
         mainpage="Edit Activity Status"
       />
       <div className="grid grid-cols-12 gap-6">

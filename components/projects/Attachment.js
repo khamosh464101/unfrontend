@@ -43,7 +43,6 @@ function Attachment({ documents, setDocuments, type, id }) {
         setFiles([]);
         setTitle("");
 
-
         console.log("File uploaded successfully:", result);
       } else {
         console.error("Upload failed:", response.statusText);
@@ -172,7 +171,6 @@ function Attachment({ documents, setDocuments, type, id }) {
               }}
             />
           </div>
-       
 
           <button className="ti-btn ti-btn-primary-full" type="submit">
             Submit
@@ -208,7 +206,7 @@ function Attachment({ documents, setDocuments, type, id }) {
                 </div>
                 <div className="inline-flex">
                   <a
-                    href={row.path}
+                    href={`${baseUrl}/api/document/download/${row.id}`}
                     download
                     className="ti-btn ti-btn-sm ti-btn-info me-[0.375rem]"
                   >

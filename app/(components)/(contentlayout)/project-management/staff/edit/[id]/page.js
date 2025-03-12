@@ -102,7 +102,7 @@ const Editstaff = ({ params }) => {
     form.append("official_email", formData.official_email);
     form.append("phone1", formData.phone1);
     form.append("phone2", formData.phone2);
-    if(formData.photo) {
+    if (formData.photo) {
       form.append("photo", formData.photo[0].file, formData.photo[0].file.name);
     }
     form.append("duty_station", formData.duty_station);
@@ -155,6 +155,7 @@ const Editstaff = ({ params }) => {
       <Pageheader
         currentpage="Edit team member"
         activepage="Staffs"
+        activeurl="/project-management/staff"
         mainpage="Edit team member"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -174,7 +175,7 @@ const Editstaff = ({ params }) => {
                   className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-secondary-full btn-wave"
                 >
                   <i className="ri-eye-line align-middle me-1 font-semibold"></i>
-                  View 
+                  View
                 </Link>
               </div>
             </div>
@@ -378,7 +379,7 @@ const Editstaff = ({ params }) => {
                   </label>
                   <div id="project-descriptioin-editor">
                     <SunEditor
-                       height="130px"
+                      height="130px"
                       setContents={formData.about}
                       getSunEditorInstance={getSunEditorInstance}
                     />

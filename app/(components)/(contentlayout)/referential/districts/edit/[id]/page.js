@@ -18,7 +18,7 @@ const EditDistrict = ({ params }) => {
   const { data: session, update } = useSession();
   const [loading, setLoading] = useState(false);
   const baseUrl = useSelector((state) => state.general.baseUrl);
-const [provinces, setProvinces] = useState([]);
+  const [provinces, setProvinces] = useState([]);
   const input = {
     name: "",
     name_fa: "",
@@ -36,29 +36,30 @@ const [provinces, setProvinces] = useState([]);
       getProvinces();
     }
   }, [session, id]);
-  
-     const getProvinces = async () => {
-        const res = await fetch(`${baseUrl}/api/provinces/select2`, {
-          method: "GET",
-          headers: {
-           
-            Authorization: `Bearer ${session.access_token}`,
-            Accept: "application/json",
-          },
-        });
-    
-        if (!res.ok) {
-          Swal.fire({
-            title: "warning",
-            text: "Something went wrong.",
-            icon: "warning",
-          });
-        } else {
-          const result = await res.json();
-          const tmp = result.map((row) => {return {label: row.name, value: row.id}});
-          setProvinces(tmp);
-        }
-      }
+
+  const getProvinces = async () => {
+    const res = await fetch(`${baseUrl}/api/provinces/select2`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        Accept: "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      Swal.fire({
+        title: "warning",
+        text: "Something went wrong.",
+        icon: "warning",
+      });
+    } else {
+      const result = await res.json();
+      const tmp = result.map((row) => {
+        return { label: row.name, value: row.id };
+      });
+      setProvinces(tmp);
+    }
+  };
   const getDistrict = async () => {
     const res = await fetch(`${baseUrl}/api/district/${id}/edit`, {
       method: "GET",
@@ -81,7 +82,7 @@ const [provinces, setProvinces] = useState([]);
 
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value ,
+      [name]: value,
     }));
   };
 
@@ -130,6 +131,7 @@ const [provinces, setProvinces] = useState([]);
       <Pageheader
         currentpage="Edit district"
         activepage="Districts"
+        activeurl="/referential/districts"
         mainpage="Edit district"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -164,7 +166,6 @@ const [provinces, setProvinces] = useState([]);
                     value={formData.name}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -180,7 +181,6 @@ const [provinces, setProvinces] = useState([]);
                     value={formData.name_fa}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -196,7 +196,6 @@ const [provinces, setProvinces] = useState([]);
                     value={formData.name_pa}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -212,7 +211,6 @@ const [provinces, setProvinces] = useState([]);
                     value={formData.latitude}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -228,7 +226,6 @@ const [provinces, setProvinces] = useState([]);
                     value={formData.longitude}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -243,7 +240,6 @@ const [provinces, setProvinces] = useState([]);
                     value={formData.code}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12 z-50">
                   <label className="form-label">
@@ -274,8 +270,6 @@ const [provinces, setProvinces] = useState([]);
                     placeholder="select..."
                   />
                 </div>
-
-                
               </form>
             </div>
             <div className="box-footer">

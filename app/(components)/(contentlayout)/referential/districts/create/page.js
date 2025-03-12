@@ -26,37 +26,38 @@ const CreateDistrict = () => {
     longitude: "",
     latitude: "",
     code: "",
-    province_id: ""
+    province_id: "",
   };
   const [formData, setFormData] = useState(input);
 
   useEffect(() => {
-    if(session?.access_token) {
+    if (session?.access_token) {
       getProvinces();
     }
-  }, [session])
-   const getProvinces = async () => {
-      const res = await fetch(`${baseUrl}/api/provinces/select2`, {
-        method: "GET",
-        headers: {
-         
-          Authorization: `Bearer ${session.access_token}`,
-          Accept: "application/json",
-        },
+  }, [session]);
+  const getProvinces = async () => {
+    const res = await fetch(`${baseUrl}/api/provinces/select2`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        Accept: "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      Swal.fire({
+        title: "warning",
+        text: "Something went wrong.",
+        icon: "warning",
       });
-  
-      if (!res.ok) {
-        Swal.fire({
-          title: "warning",
-          text: "Something went wrong.",
-          icon: "warning",
-        });
-      } else {
-        const result = await res.json();
-        const tmp = result.map((row) => {return {label: row.name, value: row.id}});
-        setProvinces(tmp);
-      }
+    } else {
+      const result = await res.json();
+      const tmp = result.map((row) => {
+        return { label: row.name, value: row.id };
+      });
+      setProvinces(tmp);
     }
+  };
 
   // Handle change for text fields
   const handleChange = (e) => {
@@ -65,7 +66,7 @@ const CreateDistrict = () => {
 
     setFormData((prevData) => ({
       ...prevData,
-    [name]: value,
+      [name]: value,
     }));
   };
 
@@ -115,6 +116,7 @@ const CreateDistrict = () => {
       <Pageheader
         currentpage="Create District"
         activepage="Districts"
+        activeurl="/referential/districts"
         mainpage="Create District"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -149,7 +151,6 @@ const CreateDistrict = () => {
                     value={formData.name}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -165,7 +166,6 @@ const CreateDistrict = () => {
                     value={formData.name_fa}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -181,7 +181,6 @@ const CreateDistrict = () => {
                     value={formData.name_pa}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -197,7 +196,6 @@ const CreateDistrict = () => {
                     value={formData.latitude}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -213,7 +211,6 @@ const CreateDistrict = () => {
                     value={formData.longitude}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -228,7 +225,6 @@ const CreateDistrict = () => {
                     value={formData.code}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12 z-50">
                   <label className="form-label">
@@ -259,7 +255,6 @@ const CreateDistrict = () => {
                     placeholder="select..."
                   />
                 </div>
-         
               </form>
             </div>
             <div className="box-footer">

@@ -35,7 +35,7 @@ const CreateProvince = () => {
 
     setFormData((prevData) => ({
       ...prevData,
-    [name]: value,
+      [name]: value,
     }));
   };
 
@@ -85,6 +85,7 @@ const CreateProvince = () => {
       <Pageheader
         currentpage="Create Province"
         activepage="Provinces"
+        activeurl="/referential/provinces"
         mainpage="Create Province"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -119,7 +120,6 @@ const CreateProvince = () => {
                     value={formData.name}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -135,7 +135,6 @@ const CreateProvince = () => {
                     value={formData.name_fa}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -151,7 +150,6 @@ const CreateProvince = () => {
                     value={formData.name_pa}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -167,7 +165,6 @@ const CreateProvince = () => {
                     value={formData.latitude}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -183,7 +180,6 @@ const CreateProvince = () => {
                     value={formData.longitude}
                     onChange={handleChange}
                   />
-                  
                 </div>
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
@@ -198,9 +194,7 @@ const CreateProvince = () => {
                     value={formData.code}
                     onChange={handleChange}
                   />
-                  
                 </div>
-         
               </form>
             </div>
             <div className="box-footer">

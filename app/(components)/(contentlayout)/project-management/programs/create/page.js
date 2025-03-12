@@ -110,6 +110,7 @@ const Createprogram = () => {
       <Pageheader
         currentpage="Create Program"
         activepage="Programs"
+        activeurl="/project-management/programs"
         mainpage="Create Program"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -179,7 +180,10 @@ const Createprogram = () => {
                     Program Description :
                   </label>
                   <div id="project-descriptioin-editor">
-                    <SunEditor  height="130px" getSunEditorInstance={getSunEditorInstance} />
+                    <SunEditor
+                      height="130px"
+                      getSunEditorInstance={getSunEditorInstance}
+                    />
                   </div>
                 </div>
 

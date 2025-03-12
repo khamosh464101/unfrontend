@@ -83,6 +83,7 @@ const Createdonor = () => {
       <Pageheader
         currentpage="Create Donor"
         activepage="Donors"
+        activeurl="/project-management/donors"
         mainpage="Create Donor"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -123,7 +124,10 @@ const Createdonor = () => {
                     Donor Description :
                   </label>
                   <div id="project-descriptioin-editor">
-                    <SunEditor  height="130px" getSunEditorInstance={getSunEditorInstance} />
+                    <SunEditor
+                      height="130px"
+                      getSunEditorInstance={getSunEditorInstance}
+                    />
                   </div>
                 </div>
               </form>

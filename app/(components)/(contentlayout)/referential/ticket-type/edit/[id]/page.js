@@ -102,6 +102,7 @@ const EditTicketType = ({ params }) => {
       <Pageheader
         currentpage="Edit Ticket Type"
         activepage="Ticket Types"
+        activeurl="/referential/ticket-type"
         mainpage="Edit Ticket Type"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -173,8 +174,8 @@ const EditTicketType = ({ params }) => {
                     Default type
                   </label>
                   <p>
-                    If checked, this type will be automatically afffected to
-                    new ticket
+                    If checked, this type will be automatically afffected to new
+                    ticket
                   </p>
                 </div>
               </form>

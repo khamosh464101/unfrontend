@@ -23,13 +23,13 @@ const Programoverview = ({ params }) => {
   const [createOpen, setCreateOpen] = useState(false);
   const baseUrl = useSelector((state) => state.general.baseUrl);
   const router = useRouter();
-   const menus = [
-      { name: "Log History", icon: "ri-chat-history-line" },
-      { name: "Projects", icon: "ri-archive-stack-line" },
-      // { name: "Members", icon: "ri-group-line" },
-      { name: "Attachements", icon: "ri-attachment-line" },
-    ]
-    const [menu, setMenu] = useState(menus[0]);
+  const menus = [
+    { name: "Log History", icon: "ri-chat-history-line" },
+    { name: "Projects", icon: "ri-archive-stack-line" },
+    // { name: "Members", icon: "ri-group-line" },
+    { name: "Attachements", icon: "ri-attachment-line" },
+  ];
+  const [menu, setMenu] = useState(menus[0]);
   useEffect(() => {
     if (session?.access_token) {
       getProgram();
@@ -136,6 +136,7 @@ const Programoverview = ({ params }) => {
       <Pageheader
         currentpage="Program Overview"
         activepage="Programs"
+        activeurl="/project-management/programs"
         mainpage="Program Overview"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -268,7 +269,6 @@ const Programoverview = ({ params }) => {
             </div>
           </div>
         </div>
-    
       </div>
     </Fragment>
   );

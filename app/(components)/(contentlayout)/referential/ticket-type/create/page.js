@@ -14,9 +14,9 @@ const SunEditor = dynamic(() => import("suneditor-react"), {
   ssr: false,
 });
 const CreateTicketType = () => {
-  const { data: session  } = useSession();
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
-  const baseUrl = useSelector((state)=> state.general.baseUrl);
+  const baseUrl = useSelector((state) => state.general.baseUrl);
 
   const input = {
     title: "",
@@ -82,6 +82,7 @@ const CreateTicketType = () => {
       <Pageheader
         currentpage="Create  Ticket Type"
         activepage=" Ticket Types"
+        activeurl="/referential/ticket-type"
         mainpage="Create  Ticket Type"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -153,8 +154,8 @@ const CreateTicketType = () => {
                     Default type
                   </label>
                   <p>
-                    If checked, this type will be automatically afffected to
-                    new ticket
+                    If checked, this type will be automatically afffected to new
+                    ticket
                   </p>
                 </div>
               </form>

@@ -14,9 +14,9 @@ const SunEditor = dynamic(() => import("suneditor-react"), {
   ssr: false,
 });
 const CreateTicketPriority = () => {
-  const { data: session  } = useSession();
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
-  const baseUrl = useSelector((state)=> state.general.baseUrl);
+  const baseUrl = useSelector((state) => state.general.baseUrl);
 
   const input = {
     title: "",
@@ -82,6 +82,7 @@ const CreateTicketPriority = () => {
       <Pageheader
         currentpage="Create  Ticket Priority"
         activepage=" Ticket Priorities"
+        activeurl="/referential/ticket-priority"
         mainpage="Create  Ticket Priority"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -104,7 +105,8 @@ const CreateTicketPriority = () => {
               >
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Priority Title :
+                    <span className="text-red-500 mr-2">*</span> Priority Title
+                    :
                   </label>
                   <input
                     type="text"
@@ -120,7 +122,8 @@ const CreateTicketPriority = () => {
 
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Priority Color :
+                    <span className="text-red-500 mr-2">*</span> Priority Color
+                    :
                   </label>
 
                   <div className="border rounded-md p-1">

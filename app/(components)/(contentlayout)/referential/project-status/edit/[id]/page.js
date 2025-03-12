@@ -101,6 +101,7 @@ const EditProjectStatus = ({ params }) => {
       <Pageheader
         currentpage="Edit Project Status"
         activepage="Project Statuses"
+        activeurl="/referential/project-status"
         mainpage="Edit Project Status"
       />
       <div className="grid grid-cols-12 gap-6">

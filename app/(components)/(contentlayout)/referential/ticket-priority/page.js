@@ -104,7 +104,7 @@ const TicketPriority = () => {
       <Seo title={"Activty Priorities"} />
       <Pageheader
         currentpage="Activty Priorities"
-        activepage="Tables"
+        activepage="Referential"
         mainpage="Activty Priorities"
       />
       <div className="grid grid-cols-12 gap-6">

@@ -14,9 +14,9 @@ const SunEditor = dynamic(() => import("suneditor-react"), {
   ssr: false,
 });
 const CreateActivityType = () => {
-  const { data: session  } = useSession();
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
-  const baseUrl = useSelector((state)=> state.general.baseUrl);
+  const baseUrl = useSelector((state) => state.general.baseUrl);
 
   const input = {
     title: "",
@@ -82,6 +82,7 @@ const CreateActivityType = () => {
       <Pageheader
         currentpage="Create  Activity Type"
         activepage=" Activity Types"
+        activeurl="/referential/activity-type"
         mainpage="Create  Activity Type"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -153,8 +154,8 @@ const CreateActivityType = () => {
                     Default type
                   </label>
                   <p>
-                    If checked, this type will be automatically afffected to
-                    new activity
+                    If checked, this type will be automatically afffected to new
+                    activity
                   </p>
                 </div>
               </form>

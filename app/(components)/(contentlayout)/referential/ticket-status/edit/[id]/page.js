@@ -102,6 +102,7 @@ const EditTicketStatus = ({ params }) => {
       <Pageheader
         currentpage="Edit Ticket Status"
         activepage="Ticket Statuses"
+        activeurl="/referential/ticket-status"
         mainpage="Edit Ticket Status"
       />
       <div className="grid grid-cols-12 gap-6">

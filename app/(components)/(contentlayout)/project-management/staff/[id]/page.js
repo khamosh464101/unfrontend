@@ -136,6 +136,7 @@ const Staffview = ({ params }) => {
       <Pageheader
         currentpage="Staff"
         activepage="Pages"
+        activeurl="/project-management/staff"
         mainpage="Team member"
       />
       <div className="grid grid-cols-12 gap-x-6">
@@ -310,7 +311,7 @@ const Staffview = ({ params }) => {
                         <i className="ri-bill-line me-1 align-middle inline-block"></i>
                         Posts
                       </Link>
-                      
+
                       <Link
                         className="w-full sm:w-auto flex hs-tab-active:font-semibold  hs-tab-active:text-white hs-tab-active:bg-primary rounded-md  py-2 px-4 text-primary text-sm"
                         href="#!"

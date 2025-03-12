@@ -130,6 +130,7 @@ const Createstaff = () => {
       <Pageheader
         currentpage="Create Staff"
         activepage="Staffs"
+        activeurl="/project-management/staff"
         mainpage="Create Staff"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -343,7 +344,10 @@ const Createstaff = () => {
                     Staff Description :
                   </label>
                   <div id="project-descriptioin-editor">
-                    <SunEditor  height="130px" getSunEditorInstance={getSunEditorInstance} />
+                    <SunEditor
+                      height="130px"
+                      getSunEditorInstance={getSunEditorInstance}
+                    />
                   </div>
                 </div>
 

@@ -185,6 +185,7 @@ const EditGozar = ({ params }) => {
       <Pageheader
         currentpage="Edit gozar"
         activepage="Gozars"
+        activeurl="/referential/gozars"
         mainpage="Edit gozar"
       />
       <div className="grid grid-cols-12 gap-6">

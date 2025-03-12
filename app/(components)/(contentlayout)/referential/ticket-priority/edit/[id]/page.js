@@ -102,6 +102,7 @@ const EditTicketPriority = ({ params }) => {
       <Pageheader
         currentpage="Edit Ticket Priority"
         activepage="Ticket Priorities"
+        activeurl="/referential/ticket-priority"
         mainpage="Edit Ticket Priority"
       />
       <div className="grid grid-cols-12 gap-6">
@@ -124,7 +125,8 @@ const EditTicketPriority = ({ params }) => {
               >
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Priority Title :
+                    <span className="text-red-500 mr-2">*</span> Priority Title
+                    :
                   </label>
                   <input
                     type="text"
@@ -140,7 +142,8 @@ const EditTicketPriority = ({ params }) => {
 
                 <div className="xl:col-span-6 col-span-12">
                   <label htmlFor="input-label" className="form-label">
-                    <span className="text-red-500 mr-2">*</span> Priority Color :
+                    <span className="text-red-500 mr-2">*</span> Priority Color
+                    :
                   </label>
 
                   <div className="border rounded-md p-1">
