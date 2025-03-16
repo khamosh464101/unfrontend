@@ -1,120 +1,150 @@
 "use client";
-import React, { useRef, useEffect, useState } from "react";
-import Dragula from "react-dragula";
+import React, { useState } from "react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-const App = () => {
-  const [columns, setColumns] = useState([
-    {
-      id: "column-1",
-      title: "To Do",
-      tasks: ["Task 1", "Task 2", "Task 3"],
-    },
-    {
-      id: "column-2",
-      title: "In Progress",
-      tasks: ["Task 4", "Task 5", "Task 6"],
-    },
-    {
-      id: "column-3",
-      title: "Done",
-      tasks: ["Task 7", "Task 8", "Task 9"],
-    },
-  ]);
+// fake data generator
+const getItems = (count, offset = 0) =>
+  Array.from({ length: count }, (v, k) => k).map((k) => ({
+    id: `item-${k + offset}-${new Date().getTime()}`,
+    content: `item ${k + offset}`,
+  }));
 
-  const containerRefs = useRef(
-    Array.from({ length: columns.length }, () => null)
-  );
+const reorder = (list, startIndex, endIndex) => {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
 
-  useEffect(() => {
-    const containers = containerRefs.current.filter((ref) => ref !== null);
-    if (containers.length > 0) {
-      const dragula = require("dragula");
-      const options = {}; // Add any Dragula options here
-      const drake = dragula(containers);
+  return result;
+};
 
-      drake.on("drop", (el, target, source, sibling) => {
-        const taskId = el.dataset.id;
-        const sourceColumnId = source.dataset.columnId;
-        const targetColumnId = target.dataset.columnId;
+/**
+ * Moves an item from one list to another list.
+ */
+const move = (source, destination, droppableSource, droppableDestination) => {
+  const sourceClone = Array.from(source);
+  const destClone = Array.from(destination);
+  const [removed] = sourceClone.splice(droppableSource.index, 1);
 
-        // Find the source and target columns based on their unique ids
-        const sourceColumn = columns.find(
-          (column) => column.id === sourceColumnId
-        );
-        const targetColumn = columns.find(
-          (column) => column.id === targetColumnId
-        );
+  destClone.splice(droppableDestination.index, 0, removed);
 
-        if (!sourceColumn || !targetColumn) {
-          console.error("Source or Target Column not found");
-          return;
-        }
+  const result = {};
+  result[droppableSource.droppableId] = sourceClone;
+  result[droppableDestination.droppableId] = destClone;
 
-        const taskIndex = sourceColumn.tasks.findIndex(
-          (task) => task === taskId
-        );
+  return result;
+};
+const grid = 8;
 
-        if (taskIndex === -1) {
-          console.error("Task not found in source column");
-          return;
-        }
+const getItemStyle = (isDragging, draggableStyle) => ({
+  // some basic styles to make the items look a bit nicer
+  userSelect: "none",
+  padding: grid * 2,
+  margin: `0 0 ${grid}px 0`,
 
-        // Don't update state if task is already in the target column
-        if (targetColumn.tasks.includes(taskId)) {
-          console.log("Task is already in the target column. No update needed.");
-          return;
-        }
+  // change background colour if dragging
+  background: isDragging ? "lightgreen" : "grey",
 
-        const taskToMove = sourceColumn.tasks[taskIndex];
+  // styles we need to apply on draggables
+  ...draggableStyle,
+});
+const getListStyle = (isDraggingOver) => ({
+  background: isDraggingOver ? "lightblue" : "lightgrey",
+  padding: grid,
+  width: 250,
+});
 
-        // Create a new updated columns array without mutating the original state
-        const updatedColumns = columns.map((column) => {
-          if (column.id === sourceColumnId) {
-            // Remove task from source column
-            const updatedTasks = column.tasks.filter((task) => task !== taskId);
-            return { ...column, tasks: updatedTasks };
-          }
+function QuoteApp() {
+  const [state, setState] = useState([getItems(10), getItems(5, 10)]);
+  console.log(state);
 
-          if (column.id === targetColumnId) {
-            return { ...column, tasks: [...column.tasks, taskToMove] };
-          }
+  function onDragEnd(result) {
+    const { source, destination } = result;
 
-          return column;
-        });
-
-        // Update the state only once per drop
-        console.log(updatedColumns);
-        setColumns(updatedColumns);
-      });
-
-      // return () => {
-      //   drake.destroy(); // Cleanup Dragula instance on unmount
-      // };
+    // dropped outside the list
+    if (!destination) {
+      return;
     }
-  }, []); // Empty dependency array ensures this runs once
+    const sInd = +source.droppableId;
+    const dInd = +destination.droppableId;
+
+    if (sInd === dInd) {
+      const items = reorder(state[sInd], source.index, destination.index);
+      const newState = [...state];
+      newState[sInd] = items;
+      setState(newState);
+    } else {
+      const result = move(state[sInd], state[dInd], source, destination);
+      const newState = [...state];
+      newState[sInd] = result[sInd];
+      newState[dInd] = result[dInd];
+
+      setState(newState.filter((group) => group.length));
+    }
+  }
 
   return (
-    <div className="grid">
-      <div className="row flex justify-between gap-3 bg-blue-400">
-        {columns.map((column, index) => (
-          <div key={column.id} className="col-sm-4" id={column.id}>
-            <div
-              className="container"
-              ref={(el) => (containerRefs.current[index] = el)}
-              data-column-id={column.id}
-            >
-              <h3>{column.title}</h3>
-              {column.tasks.map((task) => (
-                <div key={task} data-id={task}>
-                  {task}
+    <div>
+      <div style={{ display: "flex" }}>
+        <DragDropContext onDragEnd={onDragEnd}>
+          {state.map((el, ind) => (
+            <Droppable key={ind} droppableId={`${ind}`}>
+              {(provided, snapshot) => (
+                <div
+                  ref={provided.innerRef}
+                  style={getListStyle(snapshot.isDraggingOver)}
+                  {...provided.droppableProps}
+                >
+                  {el.map((item, index) => (
+                    <div>
+                      <Draggable
+                        key={item.id}
+                        draggableId={item.id}
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            style={getItemStyle(
+                              snapshot.isDragging,
+                              provided.draggableProps.style
+                            )}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-around",
+                              }}
+                            >
+                              {item.content}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newState = [...state];
+                                  newState[ind].splice(index, 1);
+                                  setState(
+                                    newState.filter((group) => group.length)
+                                  );
+                                }}
+                              >
+                                delete
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    </div>
+                  ))}
+                  {provided.placeholder}
                 </div>
-              ))}
-            </div>
-          </div>
-        ))}
+              )}
+            </Droppable>
+          ))}
+        </DragDropContext>
       </div>
     </div>
   );
-};
+}
 
-export default App;
+export default QuoteApp;
