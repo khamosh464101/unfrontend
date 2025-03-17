@@ -77,6 +77,17 @@ export const getActivityTypes = createAsyncThunk(
   }
 );
 
+export const getActivitiesSelect2 = createAsyncThunk(
+  "api/getActivitiesSelect2",
+  async ({ token, id }) => {
+    const url = id
+      ? `/api/activities/select2/${id}`
+      : `/api/activities/select2`;
+    const result = await fetchData(url, token);
+    return result;
+  }
+);
+
 export const getProjectsSelect2 = createAsyncThunk(
   "api/getProjectsSelect2",
   async (token) => {
@@ -127,6 +138,7 @@ const apiSlice = createSlice({
     activityStatusesDefault: {},
     activityTypes: [],
     activityTypesDefault: [],
+    activities: [],
     ticketStatuses: [],
     ticketStatusDefault: {},
     ticketTypes: [],
@@ -252,6 +264,21 @@ const apiSlice = createSlice({
         state.activityTypes = tmp;
       })
       .addCase(getActivityTypes.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(getActivitiesSelect2.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getActivitiesSelect2.fulfilled, (state, action) => {
+        state.isLoading = false;
+        let tmp = action.payload.map((row, index) => {
+          return { label: row.title, value: row.id };
+        });
+        state.activities = tmp;
+      })
+      .addCase(getActivitiesSelect2.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message;
       })
