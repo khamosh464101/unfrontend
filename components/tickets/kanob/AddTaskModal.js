@@ -216,7 +216,7 @@ const AddTaskModal = () => {
                     }
                   ></textarea>
                 </div>
-                <div className="xl:col-span-6 col-span-12 z-60">
+                <div className="xl:col-span-6 col-span-12 z-50">
                   <label className="form-label">
                     {" "}
                     <span className="text-red-500 mr-2">*</span> Status :
@@ -236,7 +236,7 @@ const AddTaskModal = () => {
                           )
                         : null
                     }
-                    className="js-example-placeholder-multiple w-full js-states z-60"
+                    className="js-example-placeholder-multiple w-full js-states z-50"
                     menuPlacement="auto"
                     classNamePrefix="Select2"
                     placeholder="select..."
@@ -270,7 +270,7 @@ const AddTaskModal = () => {
                     placeholder="select..."
                   />
                 </div>
-                <div className="xl:col-span-6 col-span-12 z-50">
+                <div className="xl:col-span-6 col-span-12 z-40">
                   <label className="form-label">
                     <span className="text-red-500 mr-2">*</span> Type :
                   </label>
@@ -289,7 +289,7 @@ const AddTaskModal = () => {
                         : null
                     }
                     required
-                    className="js-example-placeholder-multiple w-full js-states z-50"
+                    className="js-example-placeholder-multiple w-full js-states z-40"
                     menuPlacement="auto"
                     classNamePrefix="Select2"
                     placeholder="select..."
@@ -312,7 +312,7 @@ const AddTaskModal = () => {
                     placeholder="select..."
                   />
                 </div>
-                <div className="xl:col-span-6 col-span-12 z-40">
+                <div className="xl:col-span-6 col-span-12 z-30">
                   <label className="form-label">
                     {" "}
                     <span className="text-red-500 mr-2">*</span> Activity :
@@ -333,7 +333,7 @@ const AddTaskModal = () => {
                           )
                         : null
                     }
-                    className="js-example-placeholder-multiple w-full js-states z-40"
+                    className="js-example-placeholder-multiple w-full js-states z-30"
                     menuPlacement="auto"
                     classNamePrefix="Select2"
                     placeholder="select..."

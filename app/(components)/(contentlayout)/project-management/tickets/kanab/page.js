@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { DragDropContext } from "react-beautiful-dnd";
-import initialData from "./initial-data";
 import Column from "@/components/tickets/kanob/Column";
 import Pageheader from "@/shared/layout-components/page-header/pageheader";
 import Seo from "@/shared/layout-components/seo/seo";
@@ -16,8 +15,13 @@ import { FilePond, registerPlugin } from "react-filepond";
 import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import AddTaskModal from "@/components/tickets/kanob/AddTaskModal";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useSession } from "next-auth/react";
+import {
+  getActivitiesSelect2,
+  getProjectsSelect2,
+} from "@/shared/redux/features/apiSlice";
+import ClearIndicator from "@/lib/select2";
 registerPlugin(FilePondPluginImagePreview, FilePondPluginImageExifOrientation);
 
 const reorder = (list, startIndex, endIndex) => {
@@ -32,6 +36,7 @@ const reorder = (list, startIndex, endIndex) => {
  * Moves an item from one list to another list.
  */
 const move = (source, destination, droppableSource, droppableDestination) => {
+  console.log("dddddddssssssss", source, destination);
   const sourceClone = Array.from(source);
   const destClone = Array.from(destination);
   const [removed] = sourceClone.splice(droppableSource.index, 1);
@@ -47,15 +52,32 @@ const move = (source, destination, droppableSource, droppableDestination) => {
 
 function page() {
   const { data: session } = useSession();
-  const [state, setState] = useState(initialData);
+  const [state, setState] = useState([]);
   const modalOpen = useSelector((state) => state.ticket.modalOpen);
   const baseUrl = useSelector((state) => state.general.baseUrl);
   const [url, setUrl] = useState(`${baseUrl}/api/tickets`);
+  const { projects, activities, isLoading, error } = useSelector(
+    (state) => state.api
+  );
+  const [project, setProject] = useState(null);
+  const [activity, setActivity] = useState(null);
+  const dispatch = useDispatch();
   useEffect(() => {
     if (session?.access_token) {
-      getTickets();
+      dispatch(getProjectsSelect2(session.access_token));
     }
   }, [url, session]);
+  useEffect(() => {
+    if (session?.access_token) {
+      dispatch(
+        getActivitiesSelect2({
+          token: session?.access_token,
+          id: project.value,
+        })
+      );
+    }
+  }, [project]);
+
   const getTickets = async () => {
     try {
       const res = await fetch(url, {
@@ -65,6 +87,9 @@ function page() {
           Authorization: `Bearer ${session.access_token}`,
           Accept: "application/json",
         },
+        body: JSON.stringify({
+          activity_id: activity.value,
+        }),
       });
       if (!res.ok) {
         Swal.fire({
@@ -106,6 +131,7 @@ function page() {
       const newState = [...state];
       newState[sInd] = { ...state[sInd], tickets: items };
       setState(newState);
+      updateOrder(items);
     } else {
       const result = move(
         state[sInd].tickets,
@@ -116,39 +142,60 @@ function page() {
 
       const newState = [...state];
       console.log("result", result, state[sInd], state[dInd]);
-      newState[sInd] = { ...state[sInd], tickets: result[sInd] };
-      newState[dInd] = { ...state[dInd], tickets: result[dInd] };
-      console.log(newState);
+
+      newState[sInd] = {
+        ...state[sInd],
+        tickets: result[sInd].map((item) => ({
+          ...item,
+          ticket_status_id: newState[sInd].id,
+        })),
+      };
+      newState[dInd] = {
+        ...state[dInd],
+        tickets: result[dInd].map((item) => ({
+          ...item,
+          ticket_status_id: newState[dInd].id,
+        })),
+      };
       setState(newState);
     }
   }
 
-  const Option1 = [
-    { value: "Sort By", label: "Sort By" },
-    { value: "Newest", label: "Newest" },
-    { value: "Date Added", label: "Date Added" },
-    { value: "Type", label: "Type" },
-    { value: "A - Z", label: "A - Z" },
-  ];
-  const Option2 = [
-    { value: "Angelina May", label: "Angelina May" },
-    { value: "Kiara advain", label: "Kiara advain" },
-    { value: "Hercules Jhon", label: "Hercules Jhon" },
-    { value: "Mayor Kim", label: "Mayor Kim" },
-  ];
-  const Option3 = [
-    { value: "Select Tag", label: "Select Tag" },
-    { value: "UI/UX", label: "UI/UX" },
-    { value: "Marketing", label: "Marketing" },
-    { value: "Finance", label: "Finance" },
-    { value: "Designing", label: "Designing" },
-    { value: "Admin", label: "Admin" },
-    { value: "Authentication", label: "Authentication" },
-    { value: "Product", label: "Product" },
-    { value: "Development", label: "Development" },
-  ];
-  //Specific time range
-
+  const updateOrder = async (items) => {
+    try {
+      const res = await fetch(`${baseUrl}/api/tickets/reorder`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          items: items,
+        }),
+      });
+      if (!res.ok) {
+        Swal.fire({
+          title: "warning",
+          text: "Something went wrong.",
+          icon: "warning",
+        });
+      } else {
+        const result = res.json();
+        Swal.fire({
+          title: "success",
+          text: result.message,
+          icon: "success",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "warning",
+        text: error.message || "An unexpected error occurred.",
+        icon: "success",
+      });
+    }
+  };
   return (
     <div>
       <Seo title={"Kanban Board"} />
@@ -157,67 +204,46 @@ function page() {
         activepage="Task"
         mainpage="Kanban Board"
       />
-      <div className="grid grid-cols-12 gap-x-6">
+      <div className="grid grid-cols-12 gap-6">
         <div className="xl:col-span-12 col-span-12">
-          <div className="box">
+          <div className="box custom-box">
             <div className="box-body p-4">
-              <div className="md:flex items-center justify-between flex-wrap gap-4">
-                <div className="grid grid-cols-12 gap-2 md:w-[30%]">
-                  <div className="xl:col-span-5 col-span-12">
-                    <Link
-                      href="#!"
-                      scroll={false}
-                      className="hs-dropdown-toggle !py-1 ti-btn bg-primary text-white !font-medium "
-                      data-hs-overlay="#add-board"
-                    >
-                      <i className="ri-add-line !text-[1rem]"></i>New Board
-                    </Link>
-                  </div>
-                  <div className="xl:col-span-7 col-span-12">
-                    <Select
-                      name="colors"
-                      options={Option1}
-                      className="w-full !rounded-md"
-                      menuPlacement="auto"
-                      classNamePrefix="Select2"
-                    />
-                  </div>
-                </div>
-                <div className="avatar-list-stacked my-3 md:my-0">
-                  <span className="avatar avatar-rounded">
-                    <img src="../../assets/images/faces/2.jpg" alt="img" />
-                  </span>
-                  <span className="avatar avatar-rounded">
-                    <img src="../../assets/images/faces/8.jpg" alt="img" />
-                  </span>
-                  <span className="avatar avatar-rounded">
-                    <img src="../../assets/images/faces/2.jpg" alt="img" />
-                  </span>
-                  <span className="avatar avatar-rounded">
-                    <img src="../../assets/images/faces/10.jpg" alt="img" />
-                  </span>
-                  <span className="avatar avatar-rounded">
-                    <img src="../../assets/images/faces/4.jpg" alt="img" />
-                  </span>
-                  <span className="avatar avatar-rounded">
-                    <img src="../../assets/images/faces/13.jpg" alt="img" />
-                  </span>
-                  <Link
-                    className="avatar bg-primary avatar-rounded text-white"
-                    href="#!"
-                    scroll={false}
-                  >
-                    +8
-                  </Link>
-                </div>
-                <div className="flex" role="search">
-                  <input
-                    className="form-control w-full !rounded-sm me-2"
-                    type="search"
-                    placeholder="Search"
-                    aria-label="Search"
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex flex-wrap gap-1 newproject">
+                  <Select
+                    name="status"
+                    options={projects}
+                    isClearable
+                    components={{ ClearIndicator }}
+                    onChange={(e) => setProject(e)}
+                    className="!w-60"
+                    menuPlacement="auto"
+                    classNamePrefix="Select2"
+                    placeholder="Project"
                   />
-                  <button className="ti-btn ti-btn-light !mb-0" type="submit">
+                </div>
+                <div className="flex flex-wrap gap-1 newproject">
+                  <Select
+                    name="status"
+                    options={activities}
+                    isClearable
+                    components={{ ClearIndicator }}
+                    onChange={(e) => setActivity(e)}
+                    isDisabled={!project}
+                    className="!w-60"
+                    menuPlacement="auto"
+                    classNamePrefix="Select2"
+                    placeholder="Activity"
+                  />
+                </div>
+
+                <div className="flex" role="search">
+                  <button
+                    isDisabled={!activity}
+                    onClick={() => getTickets()}
+                    className="ti-btn ti-btn-light !mb-0"
+                    type="submit"
+                  >
                     Search
                   </button>
                 </div>
@@ -284,7 +310,6 @@ function page() {
           </div>
         </div>
       </div>
-      {modalOpen ? "FALSESSSSSSSSSS" : "tRRRRRRRRRRRRRRRRRRUUUUUE"}
       {modalOpen && <AddTaskModal />}
     </div>
   );

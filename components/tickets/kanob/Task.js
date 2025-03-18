@@ -23,7 +23,7 @@ function Task({ item, index, grid }) {
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className="box kanban-tasks new"
+          className="box kanban-tasks todo"
         >
           <div className="box-body !p-0">
             <div className="p-4 kanban-board-head">
@@ -33,8 +33,16 @@ function Task({ item, index, grid }) {
                   Created - {item.created_at}
                 </div>
                 <div>
-                  {item.deadline}
-                  days left
+                  <span
+                    className={`text-red-400`}
+                    style={{
+                      color: item?.deadline?.includes("overdue")
+                        ? "#F08080"
+                        : "",
+                    }}
+                  >
+                    {item.deadline}
+                  </span>
                 </div>
               </div>
               <div className="flex items-center justify-between">
@@ -42,8 +50,20 @@ function Task({ item, index, grid }) {
                   <span className="badge bg-light text-default">
                     {item.ticket_number}
                   </span>
-                  <span className="ms-1 badge bg-primary/10 text-primary">
-                    UI/UX
+                  <span
+                    className="ms-1 badge"
+                    style={{
+                      backgroundColor: `rgba(${parseInt(
+                        item.type.color.slice(1, 3),
+                        16
+                      )}, ${parseInt(
+                        item.type.color.slice(3, 5),
+                        16
+                      )}, ${parseInt(item.type.color.slice(5, 7), 16)}, 0.1)`,
+                      color: item.type.color,
+                    }}
+                  >
+                    {item?.type?.title}
                   </span>
                 </div>
                 <div className="hs-dropdown ti-dropdown ltr:[--placement:bottom-right] rtl:[--placement:bottom-left]">
@@ -102,39 +122,28 @@ function Task({ item, index, grid }) {
             <div className="p-4 border-t dark:border-defaultborder/10 border-dashed">
               <div className="flex items-center justify-between">
                 <div className="inline-flex items-center">
-                  <Link
-                    href="#!"
-                    scroll={false}
-                    className="inline-flex items-center me-2 text-primary"
+                  <span
+                    className="me-1"
+                    style={{
+                      backgroundColor: `rgba(${parseInt(
+                        item?.priority?.color.slice(1, 3),
+                        16
+                      )}, ${parseInt(
+                        item?.priority?.color.slice(3, 5),
+                        16
+                      )}, ${parseInt(
+                        item?.priority?.color.slice(5, 7),
+                        16
+                      )}, 0.1)`,
+                      color: item?.priority?.color,
+                    }}
                   >
-                    <span className="me-1">
-                      <i className="ri-thumb-up-fill align-middle font-normal"></i>
-                    </span>
-                    <span className="font-semibold text-[.75rem]">12</span>
-                  </Link>
-                  <Link
-                    href="#!"
-                    scroll={false}
-                    className="inline-flex items-center text-[#8c9097] dark:text-white/50"
-                  >
-                    <span className="me-1">
-                      <i className="ri-message-2-line align-middle font-normal"></i>
-                    </span>
-                    <span className="font-semibold text-[.75rem]">02</span>
-                  </Link>
+                    {item?.priority?.title}
+                  </span>
                 </div>
                 <div className="avatar-list-stacked">
                   <span className="avatar avatar-sm avatar-rounded">
-                    <img src="../../assets/images/faces/11.jpg" alt="img" />
-                  </span>
-                  <span className="avatar avatar-sm avatar-rounded">
-                    <img src="../../assets/images/faces/12.jpg" alt="img" />
-                  </span>
-                  <span className="avatar avatar-sm avatar-rounded">
-                    <img src="../../assets/images/faces/7.jpg" alt="img" />
-                  </span>
-                  <span className="avatar avatar-sm avatar-rounded">
-                    <img src="../../assets/images/faces/8.jpg" alt="img" />
+                    <img src={item?.responsible?.photo} alt="img" />
                   </span>
                 </div>
               </div>

@@ -24,7 +24,7 @@ function Column({ el, ind }) {
         <div
           ref={provided.innerRef}
           {...provided.droppableProps}
-          className="kanban-tasks-type new"
+          className="kanban-tasks-type new "
         >
           <div className="mb-4">
             <div className="flex justify-between items-center">
@@ -42,9 +42,14 @@ function Column({ el, ind }) {
               </div>
             </div>
           </div>
-          <div className="kanban-tasks " id="new-tasks">
+          <div
+            className={`kanban-tasks ${
+              el.tickets.length <= 0 ? "task-Null" : ""
+            }`}
+            id="todo-tasks"
+          >
             <PerfectScrollbar style={{ height: "560px" }}>
-              <div className="firstdrag" data-view-btn="new-tasks">
+              <div className="firstdrag" data-view-btn="todo-tasks">
                 {el?.tickets?.map((item, index) => (
                   <Task item={item} index={index} grid={grid} />
                 ))}
