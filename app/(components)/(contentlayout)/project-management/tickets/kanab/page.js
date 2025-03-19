@@ -17,11 +17,13 @@ import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import AddTaskModal from "@/components/tickets/kanob/AddTaskModal";
 import { useDispatch, useSelector } from "react-redux";
 import { useSession } from "next-auth/react";
+import Swal from "sweetalert2";
 import {
   getActivitiesSelect2,
   getProjectsSelect2,
 } from "@/shared/redux/features/apiSlice";
 import ClearIndicator from "@/lib/select2";
+import { setActivity, setProject } from "@/shared/redux/features/ticketSlice";
 registerPlugin(FilePondPluginImagePreview, FilePondPluginImageExifOrientation);
 
 const reorder = (list, startIndex, endIndex) => {
@@ -59,8 +61,7 @@ function page() {
   const { projects, activities, isLoading, error } = useSelector(
     (state) => state.api
   );
-  const [project, setProject] = useState(null);
-  const [activity, setActivity] = useState(null);
+ const {project, activity} = useSelector((state) => state.ticket);
   const dispatch = useDispatch();
   useEffect(() => {
     if (session?.access_token) {
@@ -78,7 +79,8 @@ function page() {
     }
   }, [project]);
 
-  const getTickets = async () => {
+  const getTickets = async (e) => {
+    e.preventDefault();
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -105,7 +107,7 @@ function page() {
       Swal.fire({
         title: "warning",
         text: error.message || "An unexpected error occurred.",
-        icon: "success",
+        icon: "warning",
       });
     }
   };
@@ -158,6 +160,8 @@ function page() {
         })),
       };
       setState(newState);
+      updateMove(newState[sInd].tickets, newState[dInd].tickets);
+
     }
   }
 
@@ -181,7 +185,7 @@ function page() {
           icon: "warning",
         });
       } else {
-        const result = res.json();
+        const result = await res.json();
         Swal.fire({
           title: "success",
           text: result.message,
@@ -192,30 +196,68 @@ function page() {
       Swal.fire({
         title: "warning",
         text: error.message || "An unexpected error occurred.",
-        icon: "success",
+        icon: "warning",
+      });
+    }
+  };
+
+  const updateMove = async (sItems, dItems) => {
+    try {
+      const res = await fetch(`${baseUrl}/api/tickets/move`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          sItems: sItems,
+          dItems: dItems
+        }),
+      });
+      if (!res.ok) {
+        Swal.fire({
+          title: "warning",
+          text: "Something went wrong.",
+          icon: "warning",
+        });
+      } else {
+        const result = await res.json();
+        Swal.fire({
+          title: "success",
+          text: result.message,
+          icon: "success",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "warning",
+        text: error.message || "An unexpected error occurred.",
+        icon: "warning",
       });
     }
   };
   return (
     <div>
-      <Seo title={"Kanban Board"} />
+      <Seo title={"Kanab board"} />
       <Pageheader
-        currentpage="Kanban Board"
-        activepage="Task"
-        mainpage="Kanban Board"
+        currentpage="Kanab board"
+        activepage="Tickets"
+        mainpage="Kanab board"
       />
       <div className="grid grid-cols-12 gap-6">
         <div className="xl:col-span-12 col-span-12">
           <div className="box custom-box">
             <div className="box-body p-4">
-              <div className="flex items-center justify-between flex-wrap gap-4">
+              <form action="POST" onSubmit={getTickets} className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex flex-wrap gap-1 newproject">
                   <Select
                     name="status"
                     options={projects}
                     isClearable
                     components={{ ClearIndicator }}
-                    onChange={(e) => setProject(e)}
+                    onChange={(e) => dispatch(setProject(e))}
+                    required
                     className="!w-60"
                     menuPlacement="auto"
                     classNamePrefix="Select2"
@@ -228,7 +270,8 @@ function page() {
                     options={activities}
                     isClearable
                     components={{ ClearIndicator }}
-                    onChange={(e) => setActivity(e)}
+                    onChange={(e) => dispatch(setActivity(e))}
+                    required
                     isDisabled={!project}
                     className="!w-60"
                     menuPlacement="auto"
@@ -240,14 +283,13 @@ function page() {
                 <div className="flex" role="search">
                   <button
                     isDisabled={!activity}
-                    onClick={() => getTickets()}
                     className="ti-btn ti-btn-light !mb-0"
                     type="submit"
                   >
                     Search
                   </button>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         </div>

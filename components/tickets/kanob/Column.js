@@ -5,7 +5,7 @@ import PerfectScrollbar from "react-perfect-scrollbar";
 import Link from "next/link";
 import AddTaskModal from "./AddTaskModal";
 import { useDispatch } from "react-redux";
-import { setModalOpen } from "@/shared/redux/features/ticketSlice";
+import { setDefaultStatus, setModalOpen } from "@/shared/redux/features/ticketSlice";
 
 const grid = 8;
 
@@ -33,7 +33,7 @@ function Column({ el, ind }) {
               </span>
               <div>
                 <button
-                  onClick={() => dispatch(setModalOpen())}
+                  onClick={() => {dispatch(setModalOpen()); dispatch(setDefaultStatus({value:el.id, label: el.title}))}}
                   scroll={false}
                   className="hs-dropdown-toggle  ti-btn !py-1 !px-2 !font-medium !text-[0.75rem] bg-white dark:bg-bodybg text-default border-0"
                 >

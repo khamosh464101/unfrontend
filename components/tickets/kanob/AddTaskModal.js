@@ -20,7 +20,6 @@ import Swal from "sweetalert2";
 
 const AddTaskModal = () => {
   const { data: session } = useSession();
-  const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const {
@@ -36,6 +35,9 @@ const AddTaskModal = () => {
     isLoading,
     error,
   } = useSelector((state) => state.api);
+  const {
+    project, activity, defaultStatus
+  } = useSelector((state) => state.ticket);
   const input = {
     title: "",
     ticket_status_id: "",
@@ -51,15 +53,21 @@ const AddTaskModal = () => {
   const [formData, setFormData] = useState(input);
   const baseUrl = useSelector((state) => state.general.baseUrl);
 
-  useEffect(() => {
-    handleChange("ticket_status_id", status.value);
-  }, [status]);
+
   useEffect(() => {
     handleChange("ticket_type_id", type.value);
   }, [type]);
   useEffect(() => {
     handleChange("ticket_priority_id", priority.value);
   }, [priority]);
+  useEffect(() => {
+    handleChange("activity_id", activity.value);
+  }, [activity]);
+  useEffect(() => {
+    if (defaultStatus) {
+      handleChange("ticket_status_id", defaultStatus.value);
+    }
+  }, [defaultStatus]);
   useEffect(() => {
     if (session?.access_token) {
       dispatch(getTicketStatuses(session?.access_token));
@@ -117,7 +125,6 @@ const AddTaskModal = () => {
         icon: "success",
       });
       setFormData(input);
-      setProject(null);
       dispatch(setModalOpen());
     }
 
@@ -225,7 +232,7 @@ const AddTaskModal = () => {
                     name="ticket_status_id"
                     required
                     onChange={(e) =>
-                      handleChange("ticket_status_id", e.value ? e.value : null)
+                      handleChange("ticket_status_id", e.value)
                     }
                     isClearable={true}
                     options={statuses}
@@ -303,9 +310,10 @@ const AddTaskModal = () => {
                   <Select
                     name="project_id"
                     required
-                    onChange={(e) => setProject(e)}
                     isClearable={true}
                     options={projects}
+                    value={project}
+                    isDisabled={true}
                     className="js-example-placeholder-multiple w-full js-states z-40"
                     menuPlacement="auto"
                     classNamePrefix="Select2"
@@ -324,14 +332,10 @@ const AddTaskModal = () => {
                       handleChange("activity_id", e.value ? e.value : null)
                     }
                     isClearable={true}
-                    isDisabled={!project}
+                    isDisabled={true}
                     options={activities}
                     value={
-                      formData.activity_id
-                        ? types?.find(
-                            (row) => row.value === formData.activity_id
-                          )
-                        : null
+                      activity
                     }
                     className="js-example-placeholder-multiple w-full js-states z-30"
                     menuPlacement="auto"
@@ -389,6 +393,7 @@ const AddTaskModal = () => {
             </div>
             <div className="ti-modal-footer">
               <button
+              onClick={() => dispatch(setModalOpen())}
                 type="button"
                 className="hs-dropdown-toggle ti-btn  ti-btn-light align-middle"
                 data-hs-overlay="#add-task"
