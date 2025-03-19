@@ -1,9 +1,71 @@
 import { differenceInDays, parse } from "date-fns";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
+import { useSelector } from "react-redux";
+import Swal from "sweetalert2";
 
 function Task({ item, index, grid }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const { data: session } = useSession();
+  const baseUrl = useSelector((state) => state.general.baseUrl);
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const deleteTicket = async () => {
+    try {
+      dispatch(setDelete());
+      const response = await fetch(`${baseUrl}/api/ticket/${item.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`, // optional, depending on your authentication
+          Accept: "application/json",
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        // If response is not OK, show the error message
+        Swal.fire({
+          title: "Error",
+          text:
+            result.message || "An error occurred while deleting the activity.",
+          icon: "error",
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: "Success",
+        text: "Project deleted successfully.",
+        icon: "success",
+      });
+      dispatch(setDelete());
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: error.message || "An unexpected error occurred.",
+        icon: "error",
+      });
+    }
+  };
   const getItemStyle = (isDragging, draggableStyle) => ({
     // some basic styles to make the items look a bit nicer
     userSelect: "none",
@@ -66,48 +128,76 @@ function Task({ item, index, grid }) {
                     {item?.type?.title}
                   </span>
                 </div>
-                <div className="hs-dropdown ti-dropdown ltr:[--placement:bottom-right] rtl:[--placement:bottom-left]">
-                  <Link
-                    aria-label="anchor"
-                    href="#!"
-                    scroll={false}
-                    className="ti-btn ti-btn-icon ti-btn-sm ti-btn-light"
-                    aria-expanded="false"
+                <div
+                  className="relative inline-block text-left"
+                  ref={dropdownRef}
+                >
+                  {/* Dropdown Button */}
+                  <button
+                    onClick={toggleDropdown}
+                    className="ti-btn ti-btn-sm ti-btn-light !mb-0"
                   >
                     <i className="fe fe-more-vertical"></i>
-                  </Link>
-                  <ul className="hs-dropdown-menu ti-dropdown-menu hidden">
-                    <li>
-                      <Link
-                        className="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium !inline-flex"
-                        href="#!"
-                        scroll={false}
-                      >
-                        <i className="ri-eye-line me-1 align-middle"></i>
-                        View
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        className="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium !inline-flex"
-                        href="#!"
-                        scroll={false}
-                      >
-                        <i className="ri-delete-bin-line me-1 align-middle"></i>
-                        Delete
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        className="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium !inline-flex"
-                        href="#!"
-                        scroll={false}
-                      >
-                        <i className="ri-edit-line me-1 align-middle"></i>
-                        Edit
-                      </Link>
-                    </li>
-                  </ul>
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {isOpen && (
+                    <ul
+                      className="absolute right-0 w-28 mt-2 origin-top-right bg-white border border-gray-300 rounded-md shadow-lg z-10 transition-transform transform opacity-0 duration-200 ease-out"
+                      style={{
+                        transform: isOpen
+                          ? "translateY(0)"
+                          : "translateY(-10px)",
+                        opacity: isOpen ? 1 : 0,
+                      }}
+                    >
+                      <li>
+                        <Link
+                          className="ti-dropdown-item"
+                          href={`/project-management/tickets/${item.id}`}
+                          scroll={false}
+                        >
+                          <i className="ri-eye-line align-middle me-1 inline-flex"></i>
+                          View
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          className="ti-dropdown-item"
+                          href={`/project-management/tickets/edit/${item.id}`}
+                          scroll={false}
+                        >
+                          <i className="ri-edit-line align-middle me-1 inline-flex"></i>
+                          Edit
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          className="ti-dropdown-item"
+                          onClick={() =>
+                            Swal.fire({
+                              title: "Are you sure?",
+                              text: "You won't be able to revert this!",
+                              icon: "warning",
+                              showCancelButton: true,
+                              confirmButtonColor: "#3085d6",
+                              cancelButtonColor: "#d33",
+                              confirmButtonText: "Yes, delete it!",
+                            }).then((result) => {
+                              if (result.isConfirmed) {
+                                deleteTicket();
+                              }
+                            })
+                          }
+                          href="#!"
+                          scroll={false}
+                        >
+                          <i className="ri-delete-bin-line me-1 align-middle inline-flex"></i>
+                          Delete
+                        </Link>
+                      </li>
+                    </ul>
+                  )}
                 </div>
               </div>
               <div className="kanban-content !mt-1">

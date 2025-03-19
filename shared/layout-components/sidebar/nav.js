@@ -148,7 +148,7 @@ export const MenuItems = [
             title: "Kanab",
           },
           {
-            path: "/project-management/tickets/list",
+            path: "/project-management/tickets/",
             type: "link",
             active: false,
             selected: false,

@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
 function Location({ project, gozars, setGozars }) {
+  let reverseGozars = [...gozars].reverse();
   const baseUrl = useSelector((state) => state.general.baseUrl);
   const { data: session } = useSession();
   const [dgozars, setDgozars] = useState([]);
@@ -18,7 +19,9 @@ function Location({ project, gozars, setGozars }) {
   const [province, setProvince] = useState(null);
 
   useEffect(() => {
-    getProvinces();
+    if (session?.access_token) {
+      getProvinces();
+    }
   }, [session]);
   useEffect(() => {
     if (province) {
@@ -251,7 +254,7 @@ function Location({ project, gozars, setGozars }) {
       </div>
       <div className=" p-4">
         <ul className="list-group">
-          {gozars?.map((row, index) => (
+          {reverseGozars?.map((row, index) => (
             <li key={index} className="list-group-item">
               <div className="flex items-center">
                 <div className="me-2">

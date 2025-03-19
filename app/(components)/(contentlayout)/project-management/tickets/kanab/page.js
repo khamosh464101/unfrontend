@@ -24,6 +24,7 @@ import {
 } from "@/shared/redux/features/apiSlice";
 import ClearIndicator from "@/lib/select2";
 import { setActivity, setProject } from "@/shared/redux/features/ticketSlice";
+import toast, { Toaster } from "react-hot-toast";
 registerPlugin(FilePondPluginImagePreview, FilePondPluginImageExifOrientation);
 
 const reorder = (list, startIndex, endIndex) => {
@@ -61,7 +62,7 @@ function page() {
   const { projects, activities, isLoading, error } = useSelector(
     (state) => state.api
   );
- const {project, activity} = useSelector((state) => state.ticket);
+  const { project, activity } = useSelector((state) => state.ticket);
   const dispatch = useDispatch();
   useEffect(() => {
     if (session?.access_token) {
@@ -69,7 +70,7 @@ function page() {
     }
   }, [url, session]);
   useEffect(() => {
-    if (session?.access_token) {
+    if (session?.access_token && project) {
       dispatch(
         getActivitiesSelect2({
           token: session?.access_token,
@@ -161,7 +162,6 @@ function page() {
       };
       setState(newState);
       updateMove(newState[sInd].tickets, newState[dInd].tickets);
-
     }
   }
 
@@ -186,11 +186,7 @@ function page() {
         });
       } else {
         const result = await res.json();
-        Swal.fire({
-          title: "success",
-          text: result.message,
-          icon: "success",
-        });
+        toast.success(result.message);
       }
     } catch (error) {
       Swal.fire({
@@ -212,7 +208,7 @@ function page() {
         },
         body: JSON.stringify({
           sItems: sItems,
-          dItems: dItems
+          dItems: dItems,
         }),
       });
       if (!res.ok) {
@@ -223,11 +219,7 @@ function page() {
         });
       } else {
         const result = await res.json();
-        Swal.fire({
-          title: "success",
-          text: result.message,
-          icon: "success",
-        });
+        toast.success(result.message);
       }
     } catch (error) {
       Swal.fire({
@@ -239,6 +231,7 @@ function page() {
   };
   return (
     <div>
+      <Toaster position="bottom-right" />
       <Seo title={"Kanab board"} />
       <Pageheader
         currentpage="Kanab board"
@@ -249,7 +242,11 @@ function page() {
         <div className="xl:col-span-12 col-span-12">
           <div className="box custom-box">
             <div className="box-body p-4">
-              <form action="POST" onSubmit={getTickets} className="flex items-center justify-between flex-wrap gap-4">
+              <form
+                action="POST"
+                onSubmit={getTickets}
+                className="flex items-center justify-between flex-wrap gap-4"
+              >
                 <div className="flex flex-wrap gap-1 newproject">
                   <Select
                     name="status"

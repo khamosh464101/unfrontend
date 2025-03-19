@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
-function Location({ activity, gozars, setGozars }) {
+function Location({ ticket, gozars, setGozars }) {
   let reverseGozars = [...gozars].reverse();
   const baseUrl = useSelector((state) => state.general.baseUrl);
   const { data: session } = useSession();
@@ -28,7 +28,7 @@ function Location({ activity, gozars, setGozars }) {
 
   const getLocation = async () => {
     const res = await fetch(
-      `${baseUrl}/api/activities/locations/${activity.project_id}`,
+      `${baseUrl}/api/tickets/locations/${ticket.activity_id}`,
       {
         method: "GET",
         headers: {
@@ -70,7 +70,7 @@ function Location({ activity, gozars, setGozars }) {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${baseUrl}/api/activity/add/gozar`, {
+      const response = await fetch(`${baseUrl}/api/ticket/add/gozar`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -78,7 +78,7 @@ function Location({ activity, gozars, setGozars }) {
           Accept: "application/json",
         },
         body: JSON.stringify({
-          id: activity.id,
+          id: ticket.id,
           gozar_id: gozar.value,
         }),
       });
@@ -102,7 +102,7 @@ function Location({ activity, gozars, setGozars }) {
   };
   const deleteLocation = async (did) => {
     try {
-      const res = await fetch(`${baseUrl}/api/activity/remove/gozar/`, {
+      const res = await fetch(`${baseUrl}/api/ticket/remove/gozar/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -110,7 +110,7 @@ function Location({ activity, gozars, setGozars }) {
           Accept: "application/json",
         },
         body: JSON.stringify({
-          id: activity.id,
+          id: ticket.id,
           gozar_id: did,
         }),
       });
@@ -216,10 +216,10 @@ function Location({ activity, gozars, setGozars }) {
               <div className="flex items-center">
                 <div className="me-2">
                   {row?.district?.province?.name}{" "}
-                  <i class="ri-arrow-right-line"></i>
+                  <i className="ri-arrow-right-line"></i>
                 </div>
                 <div className="me-2">
-                  {row?.district?.name} <i class="ri-arrow-right-line"></i>
+                  {row?.district?.name} <i className="ri-arrow-right-line"></i>
                 </div>
                 <div className="flex-grow">
                   <Link href="#!" scroll={false}>
@@ -233,7 +233,7 @@ function Location({ activity, gozars, setGozars }) {
                     onClick={() =>
                       Swal.fire({
                         title: "Are you sure?",
-                        text: "by confirming this the member will be removed from this activity!",
+                        text: "by confirming this the member will be removed from this ticket!",
                         icon: "warning",
                         showCancelButton: true,
                         confirmButtonColor: "#3085d6",

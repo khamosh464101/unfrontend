@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
 function Attachment({ documents, setDocuments, type, id }) {
+  let reverseDocuments = [...documents].reverse();
   const baseUrl = useSelector((state) => state.general.baseUrl);
   const { data: session } = useSession();
   const [files, setFiles] = useState([]);
@@ -179,7 +180,7 @@ function Attachment({ documents, setDocuments, type, id }) {
       </div>
       <div className=" p-4">
         <ul className="list-group">
-          {documents?.map((row, index) => (
+          {reverseDocuments?.map((row, index) => (
             <li key={index} className="list-group-item">
               <div className="flex items-center">
                 <div className="me-2">
