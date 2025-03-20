@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
 import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
+import Avatar from "react-avatar";
 const SunEditor = dynamic(() => import("suneditor-react"), {
   ssr: false,
 });
@@ -131,12 +132,14 @@ function Comment({ comments, setComments, id }) {
               <hr className="mb-4" />
               <div className="flex items-center">
                 <div className="me-2">
-                  <span className="avatar !rounded-full p-2">
-                    <img
-                      src="../../../assets/images/media/file-manager/1.png"
-                      alt=""
-                    />
-                  </span>
+                  <Avatar
+                    name={row?.user?.name}
+                    round={true}
+                    color={`#8A2BE2`}
+                    size="25"
+                    textSizeRatio={1}
+                    textMarginRatio={0.2}
+                  />
                 </div>
                 <div className="flex-grow">
                   <Link href="#!" scroll={false}>
@@ -182,7 +185,7 @@ function Comment({ comments, setComments, id }) {
               </div>
 
               <p
-                className="!text-[#2e3135] dark:text-white/50 task-description my-4 mx-4"
+                className="text-gray-600 dark:text-white/50 task-description my-4 mx-4"
                 dangerouslySetInnerHTML={{ __html: row.content }}
               />
             </li>

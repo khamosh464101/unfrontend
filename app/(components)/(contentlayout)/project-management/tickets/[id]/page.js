@@ -1,17 +1,22 @@
 "use client";
 
 import Attachment from "@/components/projects/Attachment";
+import AddLogTimeModal from "@/components/tickets/AddLogTimeModal";
 import Comment from "@/components/tickets/Comment";
 import Location from "@/components/tickets/Location";
 import Log from "@/components/tickets/Log";
+import TimeLog from "@/components/tickets/TimeLog";
 import Pageheader from "@/shared/layout-components/page-header/pageheader";
 import Seo from "@/shared/layout-components/seo/seo";
+import { setModalTimeLogOpen } from "@/shared/redux/features/ticketSlice";
+import { setHours } from "date-fns";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import React, { Fragment, useEffect, useState } from "react";
 import Avatar from "react-avatar";
 import { Toaster } from "react-hot-toast";
+import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
@@ -23,7 +28,12 @@ const TicketOverview = () => {
   const [documents, setDocuments] = useState([]);
   const [comments, setComments] = useState([]);
   const [gozars, setGozars] = useState([]);
+  const [hours, setHours] = useState([]);
   const baseUrl = useSelector((state) => state.general.baseUrl);
+  const dispatch = useDispatch();
+  const modalTimeLogOpen = useSelector(
+    (state) => state.ticket.modalTimeLogOpen
+  );
   const menus = [
     { name: "Comments", icon: "ri-message-3-line" },
     { name: "Log History", icon: "ri-chat-history-line" },
@@ -54,6 +64,7 @@ const TicketOverview = () => {
       setTickets(result.tickets);
       setGozars(result.gozars);
       setComments(result.comments);
+      setHours(result.hours);
       setTicket(result);
     }
   };
@@ -148,6 +159,13 @@ const TicketOverview = () => {
                   <i className="ri-delete-bin-line align-middle me-1 font-semibold"></i>
                   Delete Ticket
                 </button>
+                <button
+                  onClick={() => dispatch(setModalTimeLogOpen())}
+                  className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-warning-full btn-wave"
+                >
+                  <i className="ri-progress-5-line align-middle me-1 font-semibold"></i>
+                  Log time
+                </button>
               </div>
             </div>
             <div className="box-body">
@@ -164,43 +182,49 @@ const TicketOverview = () => {
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <div>
                   <span className="block text-[#8c9097] dark:text-white/50 text-[0.75rem]">
-                    Assigned Date
+                    Assigned By
                   </span>
                   <span className="block text-[.875rem] font-semibold">
-                    {ticket.start_date}
+                    <Avatar
+                      className="mr-2"
+                      name={ticket?.owner?.name}
+                      round={true}
+                      color={`#8A2BE2`}
+                      size="25"
+                    />
+                    {ticket?.owner?.name}
                   </span>
                 </div>
                 <div>
                   <span className="block text-[#8c9097] dark:text-white/50 text-[0.75rem]">
-                    Due Date
+                    Assigned To
                   </span>
                   <span className="block text-[.875rem] font-semibold">
-                    {ticket.end_date}
+                    <Avatar
+                      className="mr-2"
+                      name={ticket?.responsible?.name}
+                      round={true}
+                      color={`#8A2BE2`}
+                      size="25"
+                    />
+                    {ticket?.responsible?.name}
                   </span>
                 </div>
                 <div>
                   <span className="block text-[#8c9097] dark:text-white/50 text-[0.75rem]">
-                    Status
+                    Estimation
                   </span>
-                  <span className="block">
-                    <span
-                      className="badge"
-                      style={{
-                        backgroundColor: `rgba(${parseInt(
-                          ticket?.status?.color.slice(1, 3),
-                          16
-                        )}, ${parseInt(
-                          ticket?.status?.color.slice(3, 5),
-                          16
-                        )}, ${parseInt(
-                          ticket?.status?.color.slice(5, 7),
-                          16
-                        )}, 0.1)`,
-                        color: ticket?.status?.color,
-                      }}
-                    >
-                      {ticket?.status?.title}
-                    </span>
+                  <span className="block text-[.875rem] font-semibold">
+                    {ticket.estimation} hours
+                  </span>
+                </div>
+
+                <div>
+                  <span className="block text-[#8c9097] dark:text-white/50 text-[0.75rem]">
+                    Deadline
+                  </span>
+                  <span className="block text-[.875rem] font-semibold">
+                    {ticket.deadline}
                   </span>
                 </div>
               </div>
@@ -231,6 +255,13 @@ const TicketOverview = () => {
                 />
               )}
               {menu.name == "Log History" && <Log ticket={ticket} />}
+              {menu.name == "Time Logged" && (
+                <TimeLog
+                  hours={hours}
+                  setHours={setHours}
+                  setTicket={setTicket}
+                />
+              )}
               {menu.name == "Location" && (
                 <Location
                   ticket={ticket}
@@ -241,6 +272,7 @@ const TicketOverview = () => {
               {menu.name == "Attachements" && (
                 <Attachment
                   type={"Ticket"}
+                  textSizeRatio={1.75}
                   id={ticket.id}
                   documents={documents}
                   setDocuments={setDocuments}
@@ -251,32 +283,168 @@ const TicketOverview = () => {
         </div>
         <div className="xl:col-span-3 col-span-12">
           <div className="box custom-box">
-            <div className="box-body !p-4">
-              <div className="my-4">
-                <p>Responsible</p>
+            <div className="box-header">
+              <p className="font-semibold">
+                Ticket ID: {ticket.ticket_number}{" "}
+              </p>
+            </div>
+            <div className="box-body !p-4 text-[#8c9097] font-normal">
+              <div className="mb-6 flex flex-col gap-2">
+                <p className="font-semibold">Program: </p>
                 <p>
-                  <Avatar
-                    className="mr-2"
-                    name="Foo Bar"
-                    round={true}
-                    color={`#6495ED`}
-                    size="25"
-                  />
-                  {ticket?.responsible?.name}
+                  <Link
+                    href={`/project-management/programs/${ticket?.activity?.project?.program?.id}`}
+                    scroll={false}
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    {ticket?.activity?.project?.program?.title}
+                  </Link>
                 </p>
               </div>
-              <div className="my-4">
-                <p>Activity</p>
-                <p>{ticket?.activity?.title}</p>
+              <div className="mb-6 flex flex-col gap-2">
+                <p className="font-semibold">Project: </p>
+                <p>
+                  <Link
+                    href={`/project-management/projects/${ticket?.activity?.project?.id}`}
+                    scroll={false}
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    {ticket?.activity?.project?.title}
+                  </Link>
+                </p>
               </div>
-              <div className="my-4">
-                <p>Estimation</p>
-                <p>{ticket?.estimation} hours</p>
+              <div className="mb-6 flex flex-col gap-2">
+                <p className="font-semibold">Activity: </p>
+                <p>
+                  <Link
+                    href={`/project-management/activities/${ticket?.activity?.id}`}
+                    scroll={false}
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    {ticket?.activity?.title}
+                  </Link>
+                </p>
+              </div>
+              <div className="mb-6 flex flex-col gap-2">
+                <p>
+                  Status |{" "}
+                  <span
+                    className="badge"
+                    style={{
+                      backgroundColor: `rgba(${parseInt(
+                        ticket?.status?.color.slice(1, 3),
+                        16
+                      )}, ${parseInt(
+                        ticket?.status?.color.slice(3, 5),
+                        16
+                      )}, ${parseInt(
+                        ticket?.status?.color.slice(5, 7),
+                        16
+                      )}, 0.1)`,
+                      color: ticket?.status?.color,
+                    }}
+                  >
+                    {ticket?.status?.title}
+                  </span>
+                </p>
+              </div>
+              <div className="mb-6 flex flex-col gap-2">
+                <p>
+                  Type |{" "}
+                  <span
+                    className="badge"
+                    style={{
+                      backgroundColor: `rgba(${parseInt(
+                        ticket?.type?.color.slice(1, 3),
+                        16
+                      )}, ${parseInt(
+                        ticket?.type?.color.slice(3, 5),
+                        16
+                      )}, ${parseInt(
+                        ticket?.type?.color.slice(5, 7),
+                        16
+                      )}, 0.1)`,
+                      color: ticket?.type?.color,
+                    }}
+                  >
+                    {ticket?.type?.title}
+                  </span>
+                </p>
+              </div>
+              <div className="mb-6 flex flex-col gap-2">
+                <p>
+                  Priority |{" "}
+                  <span
+                    className="badge"
+                    style={{
+                      backgroundColor: `rgba(${parseInt(
+                        ticket?.priority?.color.slice(1, 3),
+                        16
+                      )}, ${parseInt(
+                        ticket?.priority?.color.slice(3, 5),
+                        16
+                      )}, ${parseInt(
+                        ticket?.priority?.color.slice(5, 7),
+                        16
+                      )}, 0.1)`,
+                      color: ticket?.priority?.color,
+                    }}
+                  >
+                    {ticket?.priority?.title}
+                  </span>
+                </p>
+              </div>
+              <div className="mb-2 flex flex-col gap-2">
+                <p className="mb-6">Total time logged</p>
+
+                <div
+                  className="progress progress-sm 
+progress-custom mb-[3rem] progress-animate"
+                  aria-valuenow={
+                    (ticket.hours_sum_value / ticket.estimation) * 100
+                  }
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                >
+                  <h6 className="progress-bar-title text-[1rem]">
+                    {ticket.hours_sum_value} hours
+                  </h6>
+                  <div
+                    className={`progress-bar `}
+                    style={{
+                      width: `${
+                        (ticket.hours_sum_value / ticket.estimation) * 100
+                      }%`,
+                    }}
+                  >
+                    <div className="progress-bar-value !bg-primary">
+                      {Math.round(
+                        (ticket.hours_sum_value / ticket.estimation) * 100
+                      )}
+                      %
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="mb-6 flex flex-col gap-2">
+                <p>Creation date</p>
+                <p>{ticket?.created_at_formatted} hours</p>
+              </div>
+              <div className="mb-6 flex flex-col gap-2">
+                <p>Last pdate</p>
+                <p>{ticket?.updated_at} hours</p>
               </div>
             </div>
           </div>
         </div>
       </div>
+      {modalTimeLogOpen && (
+        <AddLogTimeModal
+          id={ticket.id}
+          setTicket={setTicket}
+          setHours={setHours}
+        />
+      )}
     </Fragment>
   );
 };
