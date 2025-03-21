@@ -224,7 +224,7 @@ const TicketOverview = () => {
                     Deadline
                   </span>
                   <span className="block text-[.875rem] font-semibold">
-                    {ticket.deadline}
+                    {ticket.deadline_formatted}
                   </span>
                 </div>
               </div>
@@ -325,6 +325,7 @@ const TicketOverview = () => {
                   </Link>
                 </p>
               </div>
+             
               <div className="mb-6 flex flex-col gap-2">
                 <p>
                   Status |{" "}
@@ -427,6 +428,30 @@ progress-custom mb-[3rem] progress-animate"
                 </div>
               </div>
               <div className="mb-6 flex flex-col gap-2">
+                <p className="font-semibold">Parent: </p>
+                <p>
+                  {ticket.parent ? <Link
+                    href={`/project-management/tickets/${ticket?.parent?.id}`}
+                    scroll={false}
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    {ticket?.parent?.title}
+                  </Link> : '___'}
+                </p>
+              </div>
+              <div className="mb-6 flex flex-col gap-2">
+                <p className="font-semibold">Children: </p>
+                <p>
+                  {ticket.children?.length > 0 ? ticket.children.map((item) => (<Link
+                    href={`/project-management/tickets/${item?.id}`}
+                    scroll={false}
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    {item?.title}
+                  </Link>)) : '___'}
+                </p>
+              </div>
+              <div className="mb-6 flex flex-col gap-2">
                 <p>Creation date</p>
                 <p>{ticket?.created_at_formatted} hours</p>
               </div>
@@ -440,7 +465,7 @@ progress-custom mb-[3rem] progress-animate"
       </div>
       {modalTimeLogOpen && (
         <AddLogTimeModal
-          id={ticket.id}
+          ticketId={ticket.id}
           setTicket={setTicket}
           setHours={setHours}
         />

@@ -124,6 +124,17 @@ export const getTicketPriorities = createAsyncThunk(
   }
 );
 
+export const getTicketsSelect2 = createAsyncThunk(
+  "api/getTicketsSelect2",
+  async ({ token, id }) => {
+    const url = id
+      ? `/api/tickets/select2/${id}`
+      : `/api/tickets/select2`;
+    const result = await fetchData(url, token);
+    return result;
+  }
+);
+
 // Create a slice to handle loading, success, and error states
 const apiSlice = createSlice({
   name: "api",
@@ -145,6 +156,7 @@ const apiSlice = createSlice({
     ticketTypeDefault: {},
     ticketPriorities: [],
     ticketPriorityDefault: {},
+    tickets: [],
     isLoading: false,
     error: null,
   },
@@ -335,6 +347,21 @@ const apiSlice = createSlice({
         state.ticketPriorities = tmp;
       })
       .addCase(getTicketPriorities.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(getTicketsSelect2.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getTicketsSelect2.fulfilled, (state, action) => {
+        state.isLoading = false;
+        let tmp = action.payload.map((row, index) => {
+          return { label: row.title, value: row.id };
+        });
+        state.tickets = tmp;
+      })
+      .addCase(getTicketsSelect2.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message;
       });

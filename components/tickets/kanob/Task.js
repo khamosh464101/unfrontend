@@ -1,8 +1,12 @@
+import { setDelete } from "@/shared/redux/features/deleteSlice";
+import { setTicketEdit } from "@/shared/redux/features/ticketSlice";
 import { differenceInDays, parse } from "date-fns";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
@@ -11,6 +15,7 @@ function Task({ item, index, grid }) {
   const dropdownRef = useRef(null);
   const { data: session } = useSession();
   const baseUrl = useSelector((state) => state.general.baseUrl);
+  const dispatch = useDispatch();
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -52,11 +57,7 @@ function Task({ item, index, grid }) {
         return;
       }
 
-      Swal.fire({
-        title: "Success",
-        text: "Project deleted successfully.",
-        icon: "success",
-      });
+      toast.success(result.message);
       dispatch(setDelete());
     } catch (error) {
       Swal.fire({
@@ -98,12 +99,12 @@ function Task({ item, index, grid }) {
                   <span
                     className={`text-red-400`}
                     style={{
-                      color: item?.deadline?.includes("overdue")
+                      color: item?.deadline_formatted?.includes("overdue")
                         ? "#F08080"
                         : "",
                     }}
                   >
-                    {item.deadline}
+                    {item.deadline_formatted}
                   </span>
                 </div>
               </div>
@@ -164,7 +165,8 @@ function Task({ item, index, grid }) {
                       <li>
                         <Link
                           className="ti-dropdown-item"
-                          href={`/project-management/tickets/edit/${item.id}`}
+                          href={`#`}
+                          onClick={() => dispatch(setTicketEdit(item))}
                           scroll={false}
                         >
                           <i className="ri-edit-line align-middle me-1 inline-flex"></i>
@@ -205,7 +207,8 @@ function Task({ item, index, grid }) {
                   {item.title}
                 </h6>
                 <div className="kanban-task-description">
-                  {item.description}
+                {item.description.replace(/<[^>]*>/g, "").substring(0, 140)}
+                  {item.description?.length > 140 && '...'}
                 </div>
               </div>
             </div>

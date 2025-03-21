@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import { FilePond } from "react-filepond";
 import "filepond/dist/filepond.min.css";
-import DatePicker from "react-datepicker";
+import DatePicker, { CalendarContainer } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { setHours, setMinutes } from "date-fns";
 import { useDispatch, useSelector } from "react-redux";
-import { setModalOpen } from "@/shared/redux/features/ticketSlice";
+import { setTicketEdit } from "@/shared/redux/features/ticketSlice";
 import {
   getActivitiesSelect2,
   getProjectsSelect2,
@@ -19,7 +19,7 @@ import {
 import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
 
-const AddTaskModal = () => {
+const EditTaskModal = () => {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
@@ -38,8 +38,9 @@ const AddTaskModal = () => {
     error,
   } = useSelector((state) => state.api);
   const {
-    project, activity, defaultStatus
+     activity, defaultStatus, ticketEdit
   } = useSelector((state) => state.ticket);
+  const [project, setProject] = useState(null);
   const input = {
     title: "",
     ticket_status_id: "",
@@ -56,21 +57,21 @@ const AddTaskModal = () => {
   const [formData, setFormData] = useState(input);
   const baseUrl = useSelector((state) => state.general.baseUrl);
 
-
+console.log('ticektedit', ticketEdit)
   useEffect(() => {
-    handleChange("ticket_type_id", type.value);
-  }, [type]);
-  useEffect(() => {
-    handleChange("ticket_priority_id", priority.value);
-  }, [priority]);
-  useEffect(() => {
-    handleChange("activity_id", activity.value);
-  }, [activity]);
-  useEffect(() => {
-    if (defaultStatus) {
-      handleChange("ticket_status_id", defaultStatus.value);
+    if (projects?.length > 0) {
+      const tmp = projects.find((item) => item.value === ticketEdit.project_id);
+      setProject(tmp);
     }
-  }, [defaultStatus]);
+    handleChange("ticket_type_id", type.value);
+  }, [projects]);
+  useEffect(() => {
+    if (ticketEdit) {
+      setFormData({...ticketEdit, deadline: new Date(ticketEdit.deadline)});
+    }
+  }, [ticketEdit]);
+
+
   useEffect(() => {
     if (session?.access_token) {
       dispatch(getTicketStatuses(session?.access_token));
@@ -115,8 +116,8 @@ const AddTaskModal = () => {
     console.log(formData);
 
     setLoading(true);
-    const res = await fetch(`${baseUrl}/api/ticket`, {
-      method: "POST",
+    const res = await fetch(`${baseUrl}/api/ticket/${ticketEdit.id}`, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${session.access_token}`,
@@ -137,7 +138,7 @@ const AddTaskModal = () => {
         icon: "success",
       });
       setFormData(input);
-      dispatch(setModalOpen());
+      dispatch(setTicketEdit(null));
     }
 
     if (res.status === 403) {
@@ -171,10 +172,10 @@ const AddTaskModal = () => {
                 className="modal-title text-[1rem] font-semibold text-default dark:text-defaulttextcolor/70"
                 id="mail-ComposeLabel"
               >
-                Add Ticket
+                Edit Ticket
               </h6>
               <button
-                onClick={() => dispatch(setModalOpen())}
+                onClick={() => dispatch(setTicketEdit(null))}
                 type="button"
                 className="hs-dropdown-toggle !text-[1rem] !font-semibold"
                 data-hs-overlay="#add-task"
@@ -201,6 +202,7 @@ const AddTaskModal = () => {
                     onChange={(e) =>
                       handleChange(e.target.name, e.target.value)
                     }
+                    value={formData.title}
                     required
                     placeholder="Title"
                   />
@@ -215,6 +217,7 @@ const AddTaskModal = () => {
                     onChange={(e) =>
                       handleChange(e.target.name, e.target.value)
                     }
+                    value={formData.estimation}
                     required
                     placeholder="12.00"
                     className="form-control w-full !rounded-md"
@@ -233,6 +236,7 @@ const AddTaskModal = () => {
                     onChange={(e) =>
                       handleChange(e.target.name, e.target.value)
                     }
+                    value={formData.description}
                   ></textarea>
                 </div>
                 <div className="xl:col-span-6 col-span-12 ">
@@ -289,7 +293,7 @@ const AddTaskModal = () => {
                     placeholder="select..."
                   />
                 </div>
-                <div className="xl:col-span-6 col-span-12 ">
+                <div className="xl:col-span-6 col-span-12">
                   <label className="form-label">
                     <span className="text-red-500 mr-2">*</span> Type :
                   </label>
@@ -314,7 +318,7 @@ const AddTaskModal = () => {
                     placeholder="select..."
                   />
                 </div>
-                <div className="xl:col-span-6 col-span-12 ">
+                <div className="xl:col-span-6 col-span-12">
                   <label className="form-label">
                     {" "}
                     <span className="text-red-500 mr-2">*</span> Project :
@@ -325,14 +329,14 @@ const AddTaskModal = () => {
                     isClearable={true}
                     options={projects}
                     value={project}
-                    isDisabled={true}
+               
                     className="js-example-placeholder-multiple w-full js-states z-0"
                     menuPlacement="auto"
                     classNamePrefix="Select2"
                     placeholder="select..."
                   />
                 </div>
-                <div className="xl:col-span-6 col-span-12 ">
+                <div className="xl:col-span-6 col-span-12">
                   <label className="form-label">
                     {" "}
                     <span className="text-red-500 mr-2">*</span> Activity :
@@ -344,7 +348,7 @@ const AddTaskModal = () => {
                       handleChange("activity_id", e.value ? e.value : null)
                     }
                     isClearable={true}
-                    isDisabled={true}
+              
                     options={activities}
                     value={
                       activity
@@ -394,8 +398,15 @@ const AddTaskModal = () => {
                       handleChange("parent_id", e.value ? e.value : null)
                     }
                     isClearable={true}
-                    isDisabled={!activity}
+                    
                     options={tickets}
+                    value={
+                      formData.parent_id
+                        ? tickets?.find(
+                            (row) => row.value === formData.parent_id
+                          )
+                        : null
+                    }
 
                     className="js-example-placeholder-multiple w-full js-states z-0"
                     menuPlacement="auto"
@@ -403,7 +414,7 @@ const AddTaskModal = () => {
                     placeholder="select..."
                   />
                 </div>
-                <div className="xl:col-span-6 col-span-12">
+                <div className="xl:col-span-6 col-span-12 ">
                   <label className="form-label"> <span className="text-red-500 mr-2">*</span>Target Date</label>
                   <div className="form-group">
                     <div className="input-group !flex-nowrap">
@@ -412,12 +423,14 @@ const AddTaskModal = () => {
                         <i className="ri-calendar-line"></i>{" "}
                       </div>
                       <DatePicker
-                        className="ti-form-input ltr:rounded-l-none rtl:rounded-r-none focus:z-10"
+                        className="ti-form-input ltr:rounded-l-none rtl:rounded-r-none !focus:z-50"
                         selected={formData.deadline}
                         onChange={(date) => handleChange("deadline", date)}
+                        popperPlacement="bottom"
                         required
                         showTimeSelect
                         dateFormat="MMMM d, yyyy h:mm aa"
+                     
                       />
                     </div>
                   </div>
@@ -426,7 +439,7 @@ const AddTaskModal = () => {
             </div>
             <div className="ti-modal-footer">
               <button
-              onClick={() => dispatch(setModalOpen())}
+              onClick={() => dispatch(setTicketEdit(null))}
                 type="button"
                 className="hs-dropdown-toggle ti-btn  ti-btn-light align-middle"
                 data-hs-overlay="#add-task"
@@ -441,7 +454,7 @@ const AddTaskModal = () => {
                 {loading && (
                   <i class="las la-circle-notch animate-spin text-md"></i>
                 )}
-                Create
+                Update
               </button>
             </div>
           </div>
@@ -451,4 +464,7 @@ const AddTaskModal = () => {
   );
 };
 
-export default AddTaskModal;
+
+
+
+export default EditTaskModal;

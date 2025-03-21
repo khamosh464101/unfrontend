@@ -6,6 +6,8 @@ const initialState = {
   project: null,
   activity: null,
   defaultStatus: null,
+  timeLogEdit: null,
+  ticketEdit: null,
 };
 
 export const ticketSlice = createSlice({
@@ -31,6 +33,13 @@ export const ticketSlice = createSlice({
     setDefaultStatus: (state, { payload }) => {
       state.defaultStatus = payload;
     },
+    setTimeLogEdit: (state, {payload}) => {
+      state.timeLogEdit = payload;
+    },
+    setTicketEdit: (state, {payload}) => {
+
+      state.ticketEdit = payload;
+    }
   },
   extraReducers: (builder) => {},
 });
@@ -41,5 +50,7 @@ export const {
   setProject,
   setActivity,
   setDefaultStatus,
+  setTimeLogEdit,
+  setTicketEdit
 } = ticketSlice.actions;
 export default ticketSlice.reducer;

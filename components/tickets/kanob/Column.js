@@ -57,13 +57,13 @@ function Column({ el, ind }) {
               </div>
             </PerfectScrollbar>
           </div>
-          <div>
+          {/* <div>
             <div className="grid mt-4">
               <button type="button" className="ti-btn ti-btn-primary">
                 View More
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
       )}
     </Droppable>

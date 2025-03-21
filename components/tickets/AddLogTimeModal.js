@@ -5,22 +5,23 @@ import "filepond/dist/filepond.min.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useDispatch, useSelector } from "react-redux";
-import { setModalTimeLogOpen } from "@/shared/redux/features/ticketSlice";
+import { setModalTimeLogOpen, setTimeLogEdit } from "@/shared/redux/features/ticketSlice";
 
 import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 
-const AddLogTimeModal = ({ id, setTicket, setHours }) => {
+const AddLogTimeModal = ({ ticketId, setTicket, setHours }) => {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
+  const timeLogEdit = useSelector((state) => state.ticket.timeLogEdit);
 
   const input = {
     value: null,
     title: "",
     comment: "",
-    ticket_id: id,
+    ticket_id: ticketId,
   };
 
   const [formData, setFormData] = useState(input);
@@ -32,14 +33,28 @@ const AddLogTimeModal = ({ id, setTicket, setHours }) => {
       [name]: value,
     }));
   };
+
+  useEffect(() => {
+    console.log('timeLogEdit', timeLogEdit);
+    if (timeLogEdit?.id) {
+      handleChange('value', timeLogEdit.value);
+      handleChange('title', timeLogEdit.title);
+      handleChange('comment', timeLogEdit.comment);
+      handleChange('ticket_id', timeLogEdit.ticket_id);
+    }
+  }, [timeLogEdit])
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     console.log(formData);
-
+    let url = `${baseUrl}/api/ticket-hours`;
+    if (timeLogEdit?.id) {
+      url = `${baseUrl}/api/ticket-hours/${timeLogEdit.id}`
+    }
     setLoading(true);
-    const res = await fetch(`${baseUrl}/api/ticket-hours`, {
-      method: "POST",
+    const res = await fetch(url, {
+      method: timeLogEdit ? "PUT" : "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${session.access_token}`,
@@ -55,15 +70,31 @@ const AddLogTimeModal = ({ id, setTicket, setHours }) => {
     if (res.status === 201) {
       toast.success(result.message);
       const tmp = result.data;
-      console.log("tmp", tmp);
-      setHours((prv) => [...prv, tmp]);
+      console.log("tmp", parseFloat(tmp.value));
+      if (timeLogEdit?.id) {
+        setHours((prv) => {
+          let temp = prv.map((row, index) => {
+            if (row.id === tmp.id) {
+              return tmp;
+            }
+            return row
+          });
+          return temp;
+        });
+        setTicket((prv) => ({
+          ...prv,
+          hours_sum_value: prv.hours_sum_value + parseFloat(tmp.value, 2) - timeLogEdit.value,
+        }));
+      } else {
+        setHours((prv) => [...prv, tmp]);
       setTicket((prv) => ({
         ...prv,
-        hours_sum_value: prv.hours_sum_value + parseInt(tmp.value),
+        hours_sum_value: prv.hours_sum_value + parseFloat(tmp.value, 2),
       }));
+      }
+      
       setFormData(input);
-
-      dispatch(setModalTimeLogOpen());
+      closeModal();
     }
 
     if (res.status === 403) {
@@ -77,6 +108,10 @@ const AddLogTimeModal = ({ id, setTicket, setHours }) => {
     }
     console.log(result);
   };
+  const closeModal = () => {
+    dispatch(setModalTimeLogOpen());
+    dispatch(setTimeLogEdit(null));
+  }
 
   return (
     <>
@@ -97,10 +132,10 @@ const AddLogTimeModal = ({ id, setTicket, setHours }) => {
                 className="modal-title text-[1rem] font-semibold text-default dark:text-defaulttextcolor/70"
                 id="mail-ComposeLabel"
               >
-                Add Ticket
+                {timeLogEdit ? 'Edit' : 'Add'} Ticket
               </h6>
               <button
-                onClick={() => dispatch(setModalTimeLogOpen())}
+                onClick={() => closeModal()}
                 type="button"
                 className="hs-dropdown-toggle !text-[1rem] !font-semibold"
                 data-hs-overlay="#add-task"
@@ -130,6 +165,7 @@ const AddLogTimeModal = ({ id, setTicket, setHours }) => {
                     onChange={(e) =>
                       handleChange(e.target.name, e.target.value)
                     }
+                    value={formData.title}
                     required
                     placeholder="Title"
                   />
@@ -141,9 +177,12 @@ const AddLogTimeModal = ({ id, setTicket, setHours }) => {
                   <input
                     type="number"
                     name="value"
+                    min={0.01}
+                    step={0.01}
                     onChange={(e) =>
                       handleChange(e.target.name, e.target.value)
                     }
+                    value={formData.value}
                     required
                     placeholder="12.00"
                     className="form-control w-full !rounded-md"
@@ -162,13 +201,14 @@ const AddLogTimeModal = ({ id, setTicket, setHours }) => {
                     onChange={(e) =>
                       handleChange(e.target.name, e.target.value)
                     }
+                    value={formData.comment}
                   ></textarea>
                 </div>
               </form>
             </div>
             <div className="ti-modal-footer">
               <button
-                onClick={() => dispatch(setModalTimeLogOpen())}
+                onClick={() => closeModal()}
                 type="button"
                 className="hs-dropdown-toggle ti-btn  ti-btn-light align-middle"
                 data-hs-overlay="#add-task"
@@ -183,7 +223,7 @@ const AddLogTimeModal = ({ id, setTicket, setHours }) => {
                 {loading && (
                   <i class="las la-circle-notch animate-spin text-md"></i>
                 )}
-                Create
+                {timeLogEdit ? 'Edit' : 'Create'}
               </button>
             </div>
           </div>

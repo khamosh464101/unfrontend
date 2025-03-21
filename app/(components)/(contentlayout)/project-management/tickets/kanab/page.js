@@ -25,6 +25,7 @@ import {
 import ClearIndicator from "@/lib/select2";
 import { setActivity, setProject } from "@/shared/redux/features/ticketSlice";
 import toast, { Toaster } from "react-hot-toast";
+import EditTaskModal from "@/components/tickets/kanob/EditTaskModal";
 registerPlugin(FilePondPluginImagePreview, FilePondPluginImageExifOrientation);
 
 const reorder = (list, startIndex, endIndex) => {
@@ -56,8 +57,9 @@ const move = (source, destination, droppableSource, droppableDestination) => {
 function page() {
   const { data: session } = useSession();
   const [state, setState] = useState([]);
-  const modalOpen = useSelector((state) => state.ticket.modalOpen);
+  const {modalOpen, ticketEdit} = useSelector((state) => state.ticket);
   const baseUrl = useSelector((state) => state.general.baseUrl);
+  const deleteItem = useSelector((state) => state.delete.item);
   const [url, setUrl] = useState(`${baseUrl}/api/tickets`);
   const { projects, activities, isLoading, error } = useSelector(
     (state) => state.api
@@ -80,8 +82,16 @@ function page() {
     }
   }, [project]);
 
-  const getTickets = async (e) => {
+  useEffect(() => {
+    if(!deleteItem && session?.access_token && activity && !modalOpen && !ticketEdit) {
+      getTickets();
+    }
+  }, [deleteItem, modalOpen, ticketEdit])
+
+  const getTickets = async (e = null) => {
+   if (e) {
     e.preventDefault();
+   }
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -350,6 +360,7 @@ function page() {
         </div>
       </div>
       {modalOpen && <AddTaskModal />}
+      {ticketEdit && <EditTaskModal />}
     </div>
   );
 }
