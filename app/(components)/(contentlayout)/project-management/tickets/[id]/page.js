@@ -3,12 +3,17 @@
 import Attachment from "@/components/projects/Attachment";
 import AddLogTimeModal from "@/components/tickets/AddLogTimeModal";
 import Comment from "@/components/tickets/Comment";
+import EditTaskModal from "@/components/tickets/kanob/EditTaskModal";
 import Location from "@/components/tickets/Location";
 import Log from "@/components/tickets/Log";
 import TimeLog from "@/components/tickets/TimeLog";
 import Pageheader from "@/shared/layout-components/page-header/pageheader";
 import Seo from "@/shared/layout-components/seo/seo";
-import { setModalTimeLogOpen } from "@/shared/redux/features/ticketSlice";
+import {
+  setActivity,
+  setModalTimeLogOpen,
+  setTicketEdit,
+} from "@/shared/redux/features/ticketSlice";
 import { setHours } from "date-fns";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -31,9 +36,7 @@ const TicketOverview = () => {
   const [hours, setHours] = useState([]);
   const baseUrl = useSelector((state) => state.general.baseUrl);
   const dispatch = useDispatch();
-  const modalTimeLogOpen = useSelector(
-    (state) => state.ticket.modalTimeLogOpen
-  );
+  const { modalTimeLogOpen, ticketEdit } = useSelector((state) => state.ticket);
   const menus = [
     { name: "Comments", icon: "ri-message-3-line" },
     { name: "Log History", icon: "ri-chat-history-line" },
@@ -45,10 +48,10 @@ const TicketOverview = () => {
 
   const router = useRouter();
   useEffect(() => {
-    if (session?.access_token) {
+    if (session?.access_token && !ticketEdit) {
       getTicket();
     }
-  }, [session, id]);
+  }, [session, id, ticketEdit]);
   const getTicket = async () => {
     const res = await fetch(`${baseUrl}/api/ticket/${id}/edit`, {
       method: "GET",
@@ -108,6 +111,13 @@ const TicketOverview = () => {
     }
   };
 
+  const handleEdit = () => {
+    dispatch(setTicketEdit(ticket));
+    dispatch(
+      setActivity({ value: ticket.activity.id, label: ticket.activity.title })
+    );
+  };
+
   return (
     <Fragment>
       <Toaster position="bottom-right" />
@@ -124,20 +134,13 @@ const TicketOverview = () => {
             <div className="box-header justify-between flex">
               <div className="box-title">Ticket Details</div>
               <div className="flex gap-2">
-                <Link
-                  href="/project-management/tickets/create"
-                  className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-secondary-full btn-wave"
-                >
-                  <i className="ri-add-line align-middle me-1 font-semibold"></i>
-                  Create Ticket
-                </Link>
-                <Link
-                  href={`/project-management/tickets/edit/${id}`}
+                <button
+                  onClick={() => handleEdit()}
                   className="ti-btn !py-1 !px-2 !text-[0.75rem] ti-btn-primary-full btn-wave"
                 >
                   <i className="ri-edit-line align-middle me-1 font-semibold"></i>
                   Edit Ticket
-                </Link>
+                </button>
                 <button
                   onClick={() =>
                     Swal.fire({
@@ -325,7 +328,7 @@ const TicketOverview = () => {
                   </Link>
                 </p>
               </div>
-             
+
               <div className="mb-6 flex flex-col gap-2">
                 <p>
                   Status |{" "}
@@ -430,25 +433,33 @@ progress-custom mb-[3rem] progress-animate"
               <div className="mb-6 flex flex-col gap-2">
                 <p className="font-semibold">Parent: </p>
                 <p>
-                  {ticket.parent ? <Link
-                    href={`/project-management/tickets/${ticket?.parent?.id}`}
-                    scroll={false}
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    {ticket?.parent?.title}
-                  </Link> : '___'}
+                  {ticket.parent ? (
+                    <Link
+                      href={`/project-management/tickets/${ticket?.parent?.id}`}
+                      scroll={false}
+                      className="text-blue-500 hover:text-blue-700"
+                    >
+                      {ticket?.parent?.title}
+                    </Link>
+                  ) : (
+                    "___"
+                  )}
                 </p>
               </div>
               <div className="mb-6 flex flex-col gap-2">
                 <p className="font-semibold">Children: </p>
                 <p>
-                  {ticket.children?.length > 0 ? ticket.children.map((item) => (<Link
-                    href={`/project-management/tickets/${item?.id}`}
-                    scroll={false}
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    {item?.title}
-                  </Link>)) : '___'}
+                  {ticket.children?.length > 0
+                    ? ticket.children.map((item) => (
+                        <Link
+                          href={`/project-management/tickets/${item?.id}`}
+                          scroll={false}
+                          className="text-blue-500 hover:text-blue-700"
+                        >
+                          {item?.title}
+                        </Link>
+                      ))
+                    : "___"}
                 </p>
               </div>
               <div className="mb-6 flex flex-col gap-2">
@@ -463,6 +474,7 @@ progress-custom mb-[3rem] progress-animate"
           </div>
         </div>
       </div>
+      {ticketEdit && <EditTaskModal />}
       {modalTimeLogOpen && (
         <AddLogTimeModal
           ticketId={ticket.id}

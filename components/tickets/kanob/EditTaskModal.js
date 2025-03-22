@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Select from "react-select";
 import { FilePond } from "react-filepond";
 import "filepond/dist/filepond.min.css";
@@ -6,7 +6,10 @@ import DatePicker, { CalendarContainer } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { setHours, setMinutes } from "date-fns";
 import { useDispatch, useSelector } from "react-redux";
-import { setTicketEdit } from "@/shared/redux/features/ticketSlice";
+import {
+  setActivity,
+  setTicketEdit,
+} from "@/shared/redux/features/ticketSlice";
 import {
   getActivitiesSelect2,
   getProjectsSelect2,
@@ -18,6 +21,7 @@ import {
 } from "@/shared/redux/features/apiSlice";
 import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
+import SunEditor from "suneditor-react";
 
 const EditTaskModal = () => {
   const { data: session } = useSession();
@@ -37,10 +41,11 @@ const EditTaskModal = () => {
     isLoading,
     error,
   } = useSelector((state) => state.api);
-  const {
-     activity, defaultStatus, ticketEdit
-  } = useSelector((state) => state.ticket);
+  const { activity, defaultStatus, ticketEdit } = useSelector(
+    (state) => state.ticket
+  );
   const [project, setProject] = useState(null);
+  const [defaultActivity, setDefaultActivity] = useState(activity);
   const input = {
     title: "",
     ticket_status_id: "",
@@ -51,13 +56,16 @@ const EditTaskModal = () => {
     estimation: "",
     deadline: new Date(),
     responsible_id: "",
-    parent_id: ""
+    parent_id: "",
   };
 
   const [formData, setFormData] = useState(input);
   const baseUrl = useSelector((state) => state.general.baseUrl);
-
-console.log('ticektedit', ticketEdit)
+  const editor = useRef("");
+  const getSunEditorInstance = (sunEditor) => {
+    editor.current = sunEditor;
+  };
+  console.log("ticektedit", ticketEdit);
   useEffect(() => {
     if (projects?.length > 0) {
       const tmp = projects.find((item) => item.value === ticketEdit.project_id);
@@ -67,10 +75,9 @@ console.log('ticektedit', ticketEdit)
   }, [projects]);
   useEffect(() => {
     if (ticketEdit) {
-      setFormData({...ticketEdit, deadline: new Date(ticketEdit.deadline)});
+      setFormData({ ...ticketEdit, deadline: new Date(ticketEdit.deadline) });
     }
   }, [ticketEdit]);
-
 
   useEffect(() => {
     if (session?.access_token) {
@@ -96,13 +103,15 @@ console.log('ticektedit', ticketEdit)
   }, [project]);
 
   useEffect(() => {
-    if(activity && session?.access_token) {
-      dispatch(getTicketsSelect2({
-        token: session.access_token,
-        id: activity.value
-      }));
+    if (defaultActivity && session?.access_token) {
+      dispatch(
+        getTicketsSelect2({
+          token: session.access_token,
+          id: defaultActivity.value,
+        })
+      );
     }
-  }, [activity])
+  }, [defaultActivity]);
 
   const handleChange = (name, value) => {
     setFormData((prevData) => ({
@@ -125,6 +134,7 @@ console.log('ticektedit', ticketEdit)
       },
       body: JSON.stringify({
         ...formData,
+        description: editor.current.getContents(),
         deadline: formData.deadline.toISOString().split("T")[0],
       }),
     });
@@ -161,7 +171,7 @@ console.log('ticektedit', ticketEdit)
       ></div>
       <div
         id="add-task"
-        className="hs-overlay ti-modal open "
+        className="hs-overlay ti-modal open"
         aria-overlay="true"
         tabindex="-1"
       >
@@ -223,22 +233,20 @@ console.log('ticektedit', ticketEdit)
                     className="form-control w-full !rounded-md"
                   />
                 </div>
-
                 <div className="xl:col-span-12 col-span-12">
                   <label htmlFor="text-area" className="form-label">
-                    Task Description
+                    Description :
                   </label>
-                  <textarea
-                    className="form-control w-full !rounded-md"
-                    name="description"
-                    rows={2}
-                    placeholder="Write Description"
-                    onChange={(e) =>
-                      handleChange(e.target.name, e.target.value)
-                    }
-                    value={formData.description}
-                  ></textarea>
+                  <div id="project-descriptioin-editorr">
+                    <SunEditor
+                      style={{ zIndex: "10 !important" }}
+                      setContents={formData.description}
+                      height="100%"
+                      getSunEditorInstance={getSunEditorInstance}
+                    />
+                  </div>
                 </div>
+
                 <div className="xl:col-span-6 col-span-12 ">
                   <label className="form-label">
                     {" "}
@@ -247,11 +255,9 @@ console.log('ticektedit', ticketEdit)
                   <Select
                     name="ticket_status_id"
                     required
-                    onChange={(e) =>
-                      handleChange("ticket_status_id", e.value)
-                    }
-                    isClearable={true}
                     options={statuses}
+                    onChange={(e) => handleChange("ticket_status_id", e.value)}
+                    isClearable={true}
                     value={
                       formData.ticket_status_id
                         ? statuses.find(
@@ -328,8 +334,8 @@ console.log('ticektedit', ticketEdit)
                     required
                     isClearable={true}
                     options={projects}
+                    onChange={(e) => setProject(e)}
                     value={project}
-               
                     className="js-example-placeholder-multiple w-full js-states z-0"
                     menuPlacement="auto"
                     classNamePrefix="Select2"
@@ -344,15 +350,13 @@ console.log('ticektedit', ticketEdit)
                   <Select
                     name="activity_id"
                     required
-                    onChange={(e) =>
-                      handleChange("activity_id", e.value ? e.value : null)
-                    }
+                    onChange={(e) => {
+                      handleChange("activity_id", e.value ? e.value : null);
+                      setDefaultActivity(e);
+                    }}
                     isClearable={true}
-              
                     options={activities}
-                    value={
-                      activity
-                    }
+                    value={defaultActivity}
                     className="js-example-placeholder-multiple w-full js-states z-0"
                     menuPlacement="auto"
                     classNamePrefix="Select2"
@@ -387,18 +391,13 @@ console.log('ticektedit', ticketEdit)
                   />
                 </div>
                 <div className="xl:col-span-6 col-span-12">
-                  <label className="form-label">
-                    {" "}
-                    Related to :
-                  </label>
+                  <label className="form-label"> Related to :</label>
                   <Select
                     name="parent_id"
-                
                     onChange={(e) =>
                       handleChange("parent_id", e.value ? e.value : null)
                     }
                     isClearable={true}
-                    
                     options={tickets}
                     value={
                       formData.parent_id
@@ -407,7 +406,6 @@ console.log('ticektedit', ticketEdit)
                           )
                         : null
                     }
-
                     className="js-example-placeholder-multiple w-full js-states z-0"
                     menuPlacement="auto"
                     classNamePrefix="Select2"
@@ -415,7 +413,10 @@ console.log('ticektedit', ticketEdit)
                   />
                 </div>
                 <div className="xl:col-span-6 col-span-12 ">
-                  <label className="form-label"> <span className="text-red-500 mr-2">*</span>Target Date</label>
+                  <label className="form-label">
+                    {" "}
+                    <span className="text-red-500 mr-2">*</span>Target Date
+                  </label>
                   <div className="form-group">
                     <div className="input-group !flex-nowrap">
                       <div className="input-group-text text-muted !rounded-e-none">
@@ -430,7 +431,6 @@ console.log('ticektedit', ticketEdit)
                         required
                         showTimeSelect
                         dateFormat="MMMM d, yyyy h:mm aa"
-                     
                       />
                     </div>
                   </div>
@@ -439,7 +439,7 @@ console.log('ticektedit', ticketEdit)
             </div>
             <div className="ti-modal-footer">
               <button
-              onClick={() => dispatch(setTicketEdit(null))}
+                onClick={() => dispatch(setTicketEdit(null))}
                 type="button"
                 className="hs-dropdown-toggle ti-btn  ti-btn-light align-middle"
                 data-hs-overlay="#add-task"
@@ -463,8 +463,5 @@ console.log('ticektedit', ticketEdit)
     </>
   );
 };
-
-
-
 
 export default EditTaskModal;

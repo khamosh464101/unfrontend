@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Select from "react-select";
 import { FilePond } from "react-filepond";
 import "filepond/dist/filepond.min.css";
@@ -18,6 +18,7 @@ import {
 } from "@/shared/redux/features/apiSlice";
 import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
+import SunEditor from "suneditor-react";
 
 const AddTaskModal = () => {
   const { data: session } = useSession();
@@ -37,9 +38,11 @@ const AddTaskModal = () => {
     isLoading,
     error,
   } = useSelector((state) => state.api);
-  const {
-    project, activity, defaultStatus
-  } = useSelector((state) => state.ticket);
+  const { project, activity, defaultStatus } = useSelector(
+    (state) => state.ticket
+  );
+  const [defaultProject, setDefaultPorject] = useState(project);
+  const [defaultActivity, setDefaultActivity] = useState(activity);
   const input = {
     title: "",
     ticket_status_id: "",
@@ -50,12 +53,15 @@ const AddTaskModal = () => {
     estimation: "",
     deadline: new Date(),
     responsible_id: "",
-    parent_id: ""
+    parent_id: "",
   };
 
   const [formData, setFormData] = useState(input);
   const baseUrl = useSelector((state) => state.general.baseUrl);
-
+  const editor = useRef("");
+  const getSunEditorInstance = (sunEditor) => {
+    editor.current = sunEditor;
+  };
 
   useEffect(() => {
     handleChange("ticket_type_id", type.value);
@@ -64,8 +70,15 @@ const AddTaskModal = () => {
     handleChange("ticket_priority_id", priority.value);
   }, [priority]);
   useEffect(() => {
-    handleChange("activity_id", activity.value);
+    if (activity?.value) {
+      handleChange("activity_id", activity.value);
+    }
   }, [activity]);
+  useEffect(() => {
+    if (status) {
+      handleChange("ticket_status_id", status.value);
+    }
+  }, [status]);
   useEffect(() => {
     if (defaultStatus) {
       handleChange("ticket_status_id", defaultStatus.value);
@@ -80,28 +93,33 @@ const AddTaskModal = () => {
     }
   }, [session]);
   useEffect(() => {
-    console.log(project);
-    if (project) {
+    console.log(defaultProject);
+    if (defaultProject) {
       dispatch(
-        getStaffSelect2({ token: session?.access_token, id: project.value })
+        getStaffSelect2({
+          token: session?.access_token,
+          id: defaultProject.value,
+        })
       );
       dispatch(
         getActivitiesSelect2({
           token: session?.access_token,
-          id: project.value,
+          id: defaultProject.value,
         })
       );
     }
-  }, [project]);
+  }, [defaultProject]);
 
   useEffect(() => {
-    if(activity && session?.access_token) {
-      dispatch(getTicketsSelect2({
-        token: session.access_token,
-        id: activity.value
-      }));
+    if (defaultActivity && session?.access_token) {
+      dispatch(
+        getTicketsSelect2({
+          token: session.access_token,
+          id: defaultActivity.value,
+        })
+      );
     }
-  }, [activity])
+  }, [defaultActivity]);
 
   const handleChange = (name, value) => {
     setFormData((prevData) => ({
@@ -124,6 +142,7 @@ const AddTaskModal = () => {
       },
       body: JSON.stringify({
         ...formData,
+        description: editor.current.getContents(),
         deadline: formData.deadline.toISOString().split("T")[0],
       }),
     });
@@ -137,6 +156,7 @@ const AddTaskModal = () => {
         icon: "success",
       });
       setFormData(input);
+      editor.current.setContents("");
       dispatch(setModalOpen());
     }
 
@@ -223,17 +243,15 @@ const AddTaskModal = () => {
 
                 <div className="xl:col-span-12 col-span-12">
                   <label htmlFor="text-area" className="form-label">
-                    Task Description
+                    Description :
                   </label>
-                  <textarea
-                    className="form-control w-full !rounded-md"
-                    name="description"
-                    rows={2}
-                    placeholder="Write Description"
-                    onChange={(e) =>
-                      handleChange(e.target.name, e.target.value)
-                    }
-                  ></textarea>
+                  <div id="project-descriptioin-editor">
+                    <SunEditor
+                      style={{ zIndex: "10 !important" }}
+                      setContents={formData.description}
+                      getSunEditorInstance={getSunEditorInstance}
+                    />
+                  </div>
                 </div>
                 <div className="xl:col-span-6 col-span-12 ">
                   <label className="form-label">
@@ -243,9 +261,7 @@ const AddTaskModal = () => {
                   <Select
                     name="ticket_status_id"
                     required
-                    onChange={(e) =>
-                      handleChange("ticket_status_id", e.value)
-                    }
+                    onChange={(e) => handleChange("ticket_status_id", e.value)}
                     isClearable={true}
                     options={statuses}
                     value={
@@ -324,8 +340,9 @@ const AddTaskModal = () => {
                     required
                     isClearable={true}
                     options={projects}
-                    value={project}
-                    isDisabled={true}
+                    onChange={(e) => setDefaultPorject(e)}
+                    value={defaultProject}
+                    isDisabled={project}
                     className="js-example-placeholder-multiple w-full js-states z-0"
                     menuPlacement="auto"
                     classNamePrefix="Select2"
@@ -340,15 +357,14 @@ const AddTaskModal = () => {
                   <Select
                     name="activity_id"
                     required
-                    onChange={(e) =>
-                      handleChange("activity_id", e.value ? e.value : null)
-                    }
+                    onChange={(e) => {
+                      handleChange("activity_id", e.value ? e.value : null);
+                      setDefaultActivity(e);
+                    }}
                     isClearable={true}
-                    isDisabled={true}
+                    isDisabled={activity || !defaultProject}
                     options={activities}
-                    value={
-                      activity
-                    }
+                    value={defaultActivity}
                     className="js-example-placeholder-multiple w-full js-states z-0"
                     menuPlacement="auto"
                     classNamePrefix="Select2"
@@ -367,7 +383,7 @@ const AddTaskModal = () => {
                       handleChange("responsible_id", e.value ? e.value : null)
                     }
                     isClearable={true}
-                    isDisabled={!project}
+                    isDisabled={!defaultProject}
                     options={staff}
                     value={
                       formData.responsible_id
@@ -383,20 +399,15 @@ const AddTaskModal = () => {
                   />
                 </div>
                 <div className="xl:col-span-6 col-span-12">
-                  <label className="form-label">
-                    {" "}
-                    Related to :
-                  </label>
+                  <label className="form-label"> Related to :</label>
                   <Select
                     name="parent_id"
-                
                     onChange={(e) =>
                       handleChange("parent_id", e.value ? e.value : null)
                     }
                     isClearable={true}
-                    isDisabled={!activity}
+                    isDisabled={!defaultActivity}
                     options={tickets}
-
                     className="js-example-placeholder-multiple w-full js-states z-0"
                     menuPlacement="auto"
                     classNamePrefix="Select2"
@@ -404,7 +415,10 @@ const AddTaskModal = () => {
                   />
                 </div>
                 <div className="xl:col-span-6 col-span-12">
-                  <label className="form-label"> <span className="text-red-500 mr-2">*</span>Target Date</label>
+                  <label className="form-label">
+                    {" "}
+                    <span className="text-red-500 mr-2">*</span>Target Date
+                  </label>
                   <div className="form-group">
                     <div className="input-group !flex-nowrap">
                       <div className="input-group-text text-muted !rounded-e-none">
@@ -426,7 +440,7 @@ const AddTaskModal = () => {
             </div>
             <div className="ti-modal-footer">
               <button
-              onClick={() => dispatch(setModalOpen())}
+                onClick={() => dispatch(setModalOpen())}
                 type="button"
                 className="hs-dropdown-toggle ti-btn  ti-btn-light align-middle"
                 data-hs-overlay="#add-task"
